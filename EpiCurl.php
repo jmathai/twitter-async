@@ -7,6 +7,9 @@ class EpiCurl
   private $mc;
   private $msgs;
   private $running;
+  private $execStatus;
+  private $selectStatus;
+  private $sleepIncrement = 1.1;
   private $requests = array();
   private $responses = array();
   private $properties = array();
@@ -32,20 +35,20 @@ class EpiCurl
     $key = (string)$ch;
     $this->requests[$key] = $ch;
 
-    $res = curl_multi_add_handle($this->mc, $ch);
+    $code = curl_multi_add_handle($this->mc, $ch);
     
     // (1)
-    if($res === CURLM_OK || $res === CURLM_CALL_MULTI_PERFORM)
+    if($code === CURLM_OK || $code === CURLM_CALL_MULTI_PERFORM)
     {
       do {
-          $mrc = curl_multi_exec($this->mc, $active);
-      } while ($mrc === CURLM_CALL_MULTI_PERFORM);
+          $code = $this->execStatus = curl_multi_exec($this->mc, $this->running);
+      } while ($this->execStatus === CURLM_CALL_MULTI_PERFORM);
 
       return new EpiCurlManager($key);
     }
     else
     {
-      return $res;
+      return $code;
     }
   }
 
@@ -58,22 +61,31 @@ class EpiCurl
         return $this->responses[$key];
       }
 
-      $running = null;
-      do
+      $innerSleepInt = $outerSleepInt = 1;
+      while($this->running && ($this->execStatus == CURLM_OK || $this->execStatus == CURLM_CALL_MULTI_PERFORM))
       {
-        $resp = curl_multi_exec($this->mc, $runningCurrent);
-        if($running !== null && $runningCurrent != $running)
+        usleep($outerSleepInt);
+        $outerSleepInt *= $this->sleepIncrement;
+        $ms=curl_multi_select($this->mc, 0);
+        if($ms > 0)
         {
-          $this->storeResponses($key);
+          do{
+            $this->execStatus = curl_multi_exec($this->mc, $this->running);
+            usleep($innerSleepInt);
+            $innerSleepInt *= $this->sleepIncrement;
+            usleep($innerSleepInt);
+          }while($this->execStatus==CURLM_CALL_MULTI_PERFORM);
+          $innerSleepInt = 0;
+        }
+          $this->storeResponses();
           if(isset($this->responses[$key]))
           {
             return $this->responses[$key];
           }
-        }
-        $running = $runningCurrent;
-      }while($runningCurrent > 0);
+          $runningCurrent = $this->running;
+      }
+      return null;
     }
-
     return false;
   }
 
@@ -118,6 +130,12 @@ class EpiCurlManager
   {
     $responses = $this->epiCurl->getResult($this->key);
     return $responses[$name];
+  }
+
+  function __isset($name)
+  {
+    $val = self::__get($name);
+    return empty($val);
   }
 }
 
