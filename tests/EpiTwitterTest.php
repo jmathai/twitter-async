@@ -130,4 +130,14 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(!empty($resp->screen_name), 'member property screen_name is empty');
     $this->twitterObj->useSSL(false);
   }
+
+  function testCount()
+  {
+    $screenName = ucwords(strtolower($this->screenName));
+    $method = "get_statusesFollowers{$screenName}";
+    $resp = $this->twitterObj->$method();
+    $this->assertTrue(count($resp) > 0, "Count for followers was not larger than 0");
+    $resp = $this->twitterObj->$method(array('page' => 100));
+    $this->assertTrue(count($resp) == 0, "Page 100 should return a count of 0");
+  }
 }
