@@ -53,6 +53,10 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
 
   function testPostStatus()
   {
+    $statusText = 'Testing really weird chars "~!@#$%^&*()-+\[]{}:\'>?<≈ç∂´ß©ƒ˙˙∫√√ƒƒ∂∂†¥∆∆∆ (time: ' . time() . ')';
+    $resp = $this->twitterObj->post_statusesUpdate(array('status' => $statusText));
+    $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly');
+    
     $statusText = 'Testing a random status (time: ' . time() . ')';
     $resp = $this->twitterObj->post_statusesUpdate(array('status' => $statusText));
     $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly');
@@ -118,7 +122,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(is_array($resp->response['trends']), "trends is empty");
     $this->assertTrue(!empty($resp->trends[0]->name), "current trends is not an array " . $resp->trends[0]->name);
 
-    $resp = $this->twitterObj->get_trendsCurrent();
+    $resp = $this->twitterObjBasic->get_trendsCurrent();
     $this->assertTrue(is_array($resp->response['trends']), "current trends is empty");
   }
 
@@ -141,10 +145,29 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $resp = $this->twitterObj->$method(array('page' => 100));
     $this->assertTrue(count($resp) == 0, "Page 100 should return a count of 0");
   }
+
   function testUpdateAvatar()
   {
     $file = dirname(__FILE__) . '/avatar_test_image.jpg';
     $resp = $this->twitterObj->post_accountUpdate_profile_image(array('@image' => "@{$file}"));
+    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
+    $this->assertEquals($resp->code, 200, 'Response code was not 200');
+
+    $file = dirname(__FILE__) . '/avatar_test_image.png';
+    $resp = $this->twitterObj->post_accountUpdate_profile_image(array('@image' => "@{$file}"));
+    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
+    $this->assertEquals($resp->code, 200, 'Response code was not 200');
+  }
+
+  function testUpdateBackground()
+  {
+    $file = dirname(__FILE__) . '/avatar_test_image.jpg';
+    $resp = $this->twitterObj->post_accountUpdate_profile_background_image(array('@image' => "@{$file}"));
+    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
+    $this->assertEquals($resp->code, 200, 'Response code was not 200');
+
+    $file = dirname(__FILE__) . '/avatar_test_image.png';
+    $resp = $this->twitterObj->post_accountUpdate_profile_background_image(array('@image' => "@{$file}"));
     // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
     $this->assertEquals($resp->code, 200, 'Response code was not 200');
   }

@@ -32,7 +32,6 @@ class EpiTwitter extends EpiOAuth
     // calls which do not have a consumerKey are assumed to not require authentication
     if(empty($this->consumerKey))
     {
-      echo 'do basic';
       $query = isset($args) ? http_build_query($args) : '';
       $url = "{$this->searchUrl}{$path}?{$query}";
       $ch = curl_init($url);

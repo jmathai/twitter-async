@@ -89,6 +89,15 @@ class EpiOAuth
     curl_setopt($ch, CURLOPT_HTTPHEADER, $_h); 
   }
 
+  protected function buildHttpQueryRaw($params)
+  {
+    $retval = '';
+    foreach((array)$params as $key => $value)
+      $retval .= "{$key}={$value}&";
+    $retval = substr($retval, 0, -1);
+    return $retval;
+  }
+
   protected function curlInit($url)
   {
     $ch = curl_init($url);
@@ -114,19 +123,15 @@ class EpiOAuth
     return md5(uniqid(rand(), true));
   }
 
+  // parameters should already have been passed through prepareParameters
+  // no need to double encode
   protected function generateSignature($method = null, $url = null, $params = null)
   {
     if(empty($method) || empty($url))
       return false;
 
-    // concatenating
-    $concatenatedParams = '';
-    foreach($params as $k => $v)
-    {
-      $v = $this->encode_rfc3986($v);
-      $concatenatedParams .= "{$k}={$v}&";
-    }
-    $concatenatedParams = $this->encode_rfc3986(substr($concatenatedParams, 0, -1));
+    // concatenating and encode
+    $concatenatedParams = $this->encode_rfc3986($this->buildHttpQueryRaw($params));
 
     // normalize url
     $normalizedUrl = $this->encode_rfc3986($this->normalizeUrl($url));
@@ -164,7 +169,7 @@ class EpiOAuth
     if($isMultipart)
       curl_setopt($ch, CURLOPT_POSTFIELDS, $params['request']);
     else
-      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params['request']));
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildHttpQueryRaw($params['request']));
     $resp  = $this->curl->addCurl($ch);
     return $resp;
   }
@@ -202,22 +207,20 @@ class EpiOAuth
     $oauth['oauth_signature_method'] = $this->signatureMethod;
     $oauth['oauth_version'] = $this->version;
     // encode all oauth values
-//  foreach($oauth as $k => $v)
-//    $oauth[$k] = $this->encode_rfc3986($v);
-//  // encode all non '@' params
-//  // keep sigParams for signature generation (exclude '@' params)
-//  // rename '@key' to 'key'
-//  $sigParams = array();
+    foreach($oauth as $k => $v)
+      $oauth[$k] = $this->encode_rfc3986($v);
+    // encode all non '@' params
+    // keep sigParams for signature generation (exclude '@' params)
+    // rename '@key' to 'key'
+    $sigParams = array();
     if(is_array($params))
     {
       foreach($params as $k => $v)
       {
         if(strncmp('@',$k,1) !== 0)
         {
-//        $sigParams[$k] = $this->encode_rfc3986($v);
-//        $params[$k] = $this->encode_rfc3986($v);
-          $sigParams[$k] = ($v);
-          $params[$k] = ($v);
+          $sigParams[$k] = $this->encode_rfc3986($v);
+          $params[$k] = $this->encode_rfc3986($v);
         }
         else
         {
