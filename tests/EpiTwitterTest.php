@@ -14,6 +14,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $token = '25451974-uakRmTZxrSFQbkDjZnTAsxDO5o9kacz2LT6kqEHA';
     $secret= 'CuQPQ1WqIdSJDTIkDUlXjHpbcRao9lcKhQHflqGE8';
     $this->twitterObj = new EpiTwitter($consumer_key, $consumer_secret, $token, $secret);
+    $this->twitterObjBasic = new EpiTwitter();
     $this->screenName = 'jmathai_test';
   }
 
@@ -57,7 +58,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly');
     // reply to it
     $statusText = 'Testing a random status with reply to id (reply to: ' . $resp->id . ')';
-    $resp = $this->twitterObj->post_statusesUpdate(array('status' => $statusText, 'in_reply_to_status_id' => $resp->id));
+    $resp = $this->twitterObj->post_statusesUpdate(array('status' => $statusText, 'in_reply_to_status_id' => "{$resp->id}"));
     $this->assertEquals($resp->text, $statusText, 'The status with reply to id was not updated correctly');
   }
 
@@ -106,14 +107,14 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
 
   function testSearch()
   {
-    $resp = $this->twitterObj->get_search(array('q' => 'hello'));
+    $resp = $this->twitterObjBasic->get_search(array('q' => 'hello'));
     $this->assertTrue(is_array($resp->response['results']));
     $this->assertTrue(!empty($resp->results[0]->text), "search response is not an array {$resp->results[0]->text}");
   }
 
   function testTrends()
   {
-    $resp = $this->twitterObj->get_trends();
+    $resp = $this->twitterObjBasic->get_trends();
     $this->assertTrue(is_array($resp->response['trends']), "trends is empty");
     $this->assertTrue(!empty($resp->trends[0]->name), "current trends is not an array " . $resp->trends[0]->name);
 
@@ -139,5 +140,12 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(count($resp) > 0, "Count for followers was not larger than 0");
     $resp = $this->twitterObj->$method(array('page' => 100));
     $this->assertTrue(count($resp) == 0, "Page 100 should return a count of 0");
+  }
+  function testUpdateAvatar()
+  {
+    $file = dirname(__FILE__) . '/avatar_test_image.jpg';
+    $resp = $this->twitterObj->post_accountUpdate_profile_image(array('@image' => "@{$file}"));
+    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
+    $this->assertEquals($resp->code, 200, 'Response code was not 200');
   }
 }

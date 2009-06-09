@@ -46,7 +46,7 @@ class EpiOAuth
     return $url;
   }
 
-  public function httpRequest($method = null, $url = null, $params = null)
+  public function httpRequest($method = null, $url = null, $params = null, $isMultipart = false)
   {
     if(empty($method) || empty($url))
       return false;
@@ -60,7 +60,7 @@ class EpiOAuth
         return $this->httpGet($url, $params);
         break;
       case 'POST':
-        return $this->httpPost($url, $params);
+        return $this->httpPost($url, $params, $isMultipart);
         break;
     }
   }
@@ -86,7 +86,6 @@ class EpiOAuth
       $oauth .= "{$name}=\"{$value}\",";
     }
     $_h[] = substr($oauth, 0, -1);
-  
     curl_setopt($ch, CURLOPT_HTTPHEADER, $_h); 
   }
 
@@ -119,7 +118,6 @@ class EpiOAuth
   {
     if(empty($method) || empty($url))
       return false;
-
 
     // concatenating
     $concatenatedParams = '';
@@ -156,12 +154,17 @@ class EpiOAuth
     return $resp;
   }
 
-  protected function httpPost($url, $params = null)
+  protected function httpPost($url, $params = null, $isMultipart)
   {
     $ch = $this->curlInit($url);
     $this->addOAuthHeaders($ch, $url, $params['oauth']);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params['request']));
+    // php's curl extension automatically sets the content type
+    // based on whether the params are in string or array form
+    if($isMultipart)
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $params['request']);
+    else
+      curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params['request']));
     $resp  = $this->curl->addCurl($ch);
     return $resp;
   }
@@ -198,18 +201,39 @@ class EpiOAuth
     $oauth['oauth_timestamp'] = !isset($this->timestamp) ? time() : $this->timestamp; // for unit test
     $oauth['oauth_signature_method'] = $this->signatureMethod;
     $oauth['oauth_version'] = $this->version;
-
-    // encoding
-    array_walk($oauth, array($this, 'encode_rfc3986'));
+    // encode all oauth values
+//  foreach($oauth as $k => $v)
+//    $oauth[$k] = $this->encode_rfc3986($v);
+//  // encode all non '@' params
+//  // keep sigParams for signature generation (exclude '@' params)
+//  // rename '@key' to 'key'
+//  $sigParams = array();
     if(is_array($params))
-      array_walk($params, array($this, 'encode_rfc3986'));
-    $encodedParams = array_merge($oauth, (array)$params);
+    {
+      foreach($params as $k => $v)
+      {
+        if(strncmp('@',$k,1) !== 0)
+        {
+//        $sigParams[$k] = $this->encode_rfc3986($v);
+//        $params[$k] = $this->encode_rfc3986($v);
+          $sigParams[$k] = ($v);
+          $params[$k] = ($v);
+        }
+        else
+        {
+          $params[substr($k, 1)] = $v;
+          unset($params[$k]);
+        }
+      }
+    }
+
+    $sigParams = array_merge($oauth, (array)$sigParams);
 
     // sorting
-    ksort($encodedParams);
+    ksort($sigParams);
 
     // signing
-    $oauth['oauth_signature'] = $this->encode_rfc3986($this->generateSignature($method, $url, $encodedParams));
+    $oauth['oauth_signature'] = $this->encode_rfc3986($this->generateSignature($method, $url, $sigParams));
     return array('request' => $params, 'oauth' => $oauth);
   }
 
