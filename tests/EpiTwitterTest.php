@@ -171,4 +171,38 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
     $this->assertEquals($resp->code, 200, 'Response code was not 200');
   }
+
+  function testCreateFriendship()
+  {
+    // check if friendship exists
+    $exists = $this->twitterObj->get_friendshipsExists(array('user_a' => $this->screenName, 'user_b' => 'pbct_test'));
+    if($exists->response)
+    {
+      $destroy = $this->twitterObj->post_friendshipsDestroy(array('id' => 'pbct_test'));
+      $destroy->responseText;
+    }
+
+    // perform checks now that env is set up
+    $exists = $this->twitterObj->get_friendshipsExists(array('user_a' => $this->screenName, 'user_b' => 'pbct_test'));
+    $this->assertFalse($exists->response, 'Friendship already exists and should not for create test');
+    $create = $this->twitterObj->post_friendshipsCreate(array('id' => 'pbct_test'));
+    $this->assertTrue($create->id > 0, 'ID is empty from create friendship call');
+  }
+
+  function testDestroyFriendship()
+  {
+    // check if friendship exists
+    $exists = $this->twitterObj->get_friendshipsExists(array('user_a' => $this->screenName, 'user_b' => 'pbct_test'));
+    if(!$exists->response)
+    {
+      $create = $this->twitterObj->post_friendshipsCreate(array('id' => 'pbct_test'));
+      $create->responseText;
+    }
+    
+    // perform checks now that env is set up
+    $exists = $this->twitterObj->get_friendshipsExists(array('user_a' => $this->screenName, 'user_b' => 'pbct_test'));
+    $this->assertTrue($exists->response, 'Friendship does not exist to be destroyed');
+    $destroy = $this->twitterObj->post_friendshipsDestroy(array('id' => 'pbct_test'));
+    $this->assertTrue($destroy->id > 0, 'ID is empty from destroy friendship call');
+  }
 }
