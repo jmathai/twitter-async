@@ -15,6 +15,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $secret= 'CuQPQ1WqIdSJDTIkDUlXjHpbcRao9lcKhQHflqGE8';
     $this->twitterObj = new EpiTwitter($consumer_key, $consumer_secret, $token, $secret);
     $this->twitterObjBasic = new EpiTwitter();
+    $this->id = '25451974';
     $this->screenName = 'jmathai_test';
   }
 
@@ -204,5 +205,28 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue($exists->response, 'Friendship does not exist to be destroyed');
     $destroy = $this->twitterObj->post_friendshipsDestroy(array('id' => 'pbct_test'));
     $this->assertTrue($destroy->id > 0, 'ID is empty from destroy friendship call');
+  }
+  
+  function testGetFriendsIds()
+  {
+    $twitterFriends = $this->twitterObj->get_friendsIds(array('screen_name' => $this->screenName));
+    $this->assertTrue(count($twitterFriends->response) > 0, 'Count of get friend ids is 0');;
+    $this->assertTrue(!empty($twitterFriends[0]), 'First result in get friend ids is empty');;
+
+    $twitterFriends = $this->twitterObj->get_friendsIds(array('user_id' => $this->id));
+    $this->assertTrue(count($twitterFriends->response) > 0, 'Count of get friend ids is 0');;
+    $this->assertTrue(!empty($twitterFriends[0]), 'First result in get friend ids is empty');;
+  }
+  
+  function testGetStatusesFriends()
+  {
+    $twitterFriends = $this->twitterObj->get_statusesFriends(array('screen_name' => $this->screenName));
+    $this->assertTrue(count($twitterFriends->response) > 0, 'Count of get statuses friends is 0');;
+    $this->assertTrue(!empty($twitterFriends[0]), 'First result in get statuses friends is empty');;
+
+    $twitterFriends = $this->twitterObj->get_statusesFriends(array('user_id' => $this->id));
+    $this->assertTrue(count($twitterFriends->response) > 0, 'Count of get statuses friends is 0');;
+    $this->assertTrue(!empty($twitterFriends[0]), 'First result in get statuses friends is empty');;
+
   }
 }
