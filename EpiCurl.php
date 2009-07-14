@@ -99,6 +99,7 @@ class EpiCurl
       {
         $this->responses[$key][$name] = curl_getinfo($done['handle'], $const);
         curl_multi_remove_handle($this->mc, $done['handle']);
+        curl_close($done['handle']);
       }
     }
   }
