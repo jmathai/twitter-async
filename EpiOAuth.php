@@ -20,12 +20,19 @@ class EpiOAuth
     return new EpiOAuthResponse($resp);
   }
 
-  public function getAuthenticateUrl($token = null)
+  public function getAuthenticateUrl($token = null, $params = null)
   { 
     $token = $token ? $token : $this->getRequestToken();
-    return $this->getUrl($this->authenticateUrl) . '?oauth_token=' . $token->oauth_token;
+    $addlParams = empty($params) ? '' : '&'.http_build_query($params);
+    return $this->getUrl($this->authenticateUrl) . '?oauth_token=' . $token->oauth_token . $addlParams;
   }
 
+  public function getAuthorizeUrl($token = null)
+  {
+    return $this->getAuthorizationUrl($token);
+  }
+
+  // DEPRECATED in favor of getAuthorizeUrl()
   public function getAuthorizationUrl($token = null)
   { 
     $token = $token ? $token : $this->getRequestToken();

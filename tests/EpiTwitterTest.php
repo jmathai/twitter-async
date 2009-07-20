@@ -14,9 +14,26 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $token = '25451974-uakRmTZxrSFQbkDjZnTAsxDO5o9kacz2LT6kqEHA';
     $secret= 'CuQPQ1WqIdSJDTIkDUlXjHpbcRao9lcKhQHflqGE8';
     $this->twitterObj = new EpiTwitter($consumer_key, $consumer_secret, $token, $secret);
+    $this->twitterObjUnAuth = new EpiTwitter($consumer_key, $consumer_secret);
     $this->twitterObjBasic = new EpiTwitter();
     $this->id = '25451974';
     $this->screenName = 'jmathai_test';
+  }
+
+  function testGetAuthenticateurl()
+  {
+    $aUrl = $this->twitterObjUnAuth->getAuthenticateUrl();
+    $this->assertTrue(strstr($aUrl, 'http://twitter.com/oauth/authenticate') !== false, 'Authenticate url did not contain member definition from EpiTwitter class');
+
+    $aUrl = $this->twitterObjUnAuth->getAuthenticateUrl(null, array('force_login'=>'true'));
+    $this->assertTrue(strstr($aUrl, 'http://twitter.com/oauth/authenticate') !== false, 'Authenticate url did not contain member definition from EpiTwitter class');
+    $this->assertTrue(strstr($aUrl, 'force_login=true') !== false, 'Authenticate url did not contain member definition from EpiTwitter class');
+  }
+
+  function testGetAuthorizeUrl()
+  {
+    $aUrl = $this->twitterObjUnAuth->getAuthorizeUrl($this->token);
+    $this->assertTrue(strstr($aUrl, 'http://twitter.com/oauth/authorize') !== false, 'Authorize url did not contain member definition from EpiTwitter class');
   }
 
   function testBooleanResponse()

@@ -5,6 +5,10 @@ require_once 'PHPUnit/Framework.php';
 
 class OAuthHarness extends EpiOAuth
 {
+  protected $requestTokenUrl= 'http://photos.example.net/oauth/request_token';
+  protected $accessTokenUrl = 'http://photos.example.net/access_token';
+  protected $authorizeUrl   = 'http://photos.example.net/authorize';
+  protected $authenticateUrl= 'http://photos.example.net/authenticate';
   public function __construct($consumer_key, $consumer_secret)
   {
     parent::__construct($consumer_key, $consumer_secret);
@@ -33,6 +37,7 @@ class EpiOAuthTest extends PHPUnit_Framework_TestCase
     $this->oauthObj = new OAuthHarness($consumer_key, $consumer_secret);
     $this->oauthObj->setToken($token, $secret);
     $this->oauthObj->apiUrl = 'http://photos.example.net';
+
     $this->oauthObj->nonce = 'kllo9940pd9333jh';
     $this->oauthObj->timestamp = '1191242096';
   }
