@@ -20,6 +20,7 @@ class EpiTwitter extends EpiOAuth
   protected $authenticateUrl= 'http://twitter.com/oauth/authenticate';
   protected $apiUrl         = 'http://twitter.com';
   protected $searchUrl      = 'http://search.twitter.com';
+  protected $userAgent      = 'EpiTwitter (http://github.com/jmathai/twitter-async/tree/)';
 
   public function __call($name, $params = null)
   {
@@ -36,6 +37,7 @@ class EpiTwitter extends EpiOAuth
       $url = "{$this->searchUrl}{$path}?{$query}";
       $ch = curl_init($url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 
       return new EpiTwitterJson(EpiCurl::getInstance()->addCurl($ch), self::EPITWITTER_AUTH_BASIC);
     }

@@ -13,6 +13,17 @@ class EpiOAuth
   protected $tokenSecret;
   protected $signatureMethod;
   protected $useSSL = false;
+  protected $headers = array();
+  protected $userAgent = 'EpiOAuth (http://github.com/jmathai/twitter-async/tree/)';
+  protected $timeout = 30;
+
+  public function addHeader($header)
+  {
+    if(is_array($header) && !empty($header))
+      $this->headers = array_merge($this->headers, $header);
+    elseif(!empty($header))
+      $this->headers[] = $header;
+  }
 
   public function getAccessToken()
   {
@@ -39,7 +50,7 @@ class EpiOAuth
     return $this->getUrl($this->authorizeUrl) . '?oauth_token=' . $token->oauth_token;
   }
 
-  public function getRequestToken()
+  public function getRequestToken($params = null)
   {
     $resp = $this->httpRequest('GET', $this->getUrl($this->requestTokenUrl));
     return new EpiOAuthResponse($resp);
@@ -72,6 +83,11 @@ class EpiOAuth
     }
   }
 
+  public function setTimeout($timeout)
+  {
+    $this->timeout = floatval($timeout);
+  }
+
   public function setToken($token = null, $secret = null)
   {
     $this->token = $token;
@@ -83,7 +99,7 @@ class EpiOAuth
     $this->useSSL = (bool)$use;
   }
 
-  protected function addOAuthHeaders(&$ch, $url, $oauthHeaders)
+  protected function addDefaultHeaders($url, $oauthHeaders)
   {
     $_h = array('Expect:');
     $urlParts = parse_url($url);
@@ -93,7 +109,8 @@ class EpiOAuth
       $oauth .= "{$name}=\"{$value}\",";
     }
     $_h[] = substr($oauth, 0, -1);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $_h); 
+    $_h[] = "User-Agent: {$this->userAgent}";
+    $this->addHeader($_h);
   }
 
   protected function buildHttpQueryRaw($params)
@@ -109,6 +126,8 @@ class EpiOAuth
   {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers); 
+    curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
     if($this->useSSL === true)
     {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -159,8 +178,8 @@ class EpiOAuth
       }
       $url = substr($url, 0, -1);
     }
+    $this->addDefaultHeaders($url, $params['oauth']);
     $ch = $this->curlInit($url);
-    $this->addOAuthHeaders($ch, $url, $params['oauth']);
     $resp  = $this->curl->addCurl($ch);
 
     return $resp;
@@ -168,8 +187,8 @@ class EpiOAuth
 
   protected function httpPost($url, $params = null, $isMultipart)
   {
+    $this->addDefaultHeaders($url, $params['oauth']);
     $ch = $this->curlInit($url);
-    $this->addOAuthHeaders($ch, $url, $params['oauth']);
     curl_setopt($ch, CURLOPT_POST, 1);
     // php's curl extension automatically sets the content type
     // based on whether the params are in string or array form
