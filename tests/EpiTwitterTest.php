@@ -36,6 +36,19 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(strstr($aUrl, 'http://twitter.com/oauth/authorize') !== false, 'Authorize url did not contain member definition from EpiTwitter class');
   }
 
+  function testGetRequestToken()
+  {
+    $resp = $this->twitterObjUnAuth->getRequestToken();
+    $this->assertTrue(strlen($resp->oauth_token) > 0, "oauth_token is longer than 0");
+    $this->assertTrue(strlen($resp->oauth_token_secret) > 0, "oauth_token_secret is longer than 0");
+    $this->assertTrue(strlen($resp->oauth_callback_confirmed) == 0, "oauth_callback is not = true");
+
+    $resp = $this->twitterObjUnAuth->getRequestToken(array('oauth_callback' => urlencode('http://www.yahoo.com')));
+    $this->assertTrue(strlen($resp->oauth_token) > 0, "oauth_token is longer than 0");
+    $this->assertTrue(strlen($resp->oauth_token_secret) > 0, "oauth_token_secret is longer than 0");
+    $this->assertTrue($resp->oauth_callback_confirmed == 'true', "oauth_callback is not = true");
+  }
+
   function testBooleanResponse()
   {
     $resp = $this->twitterObj->get_friendshipsExists(array('user_a' => 'jmathai_test','user_b' => 'jmathai'));

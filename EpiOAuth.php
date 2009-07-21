@@ -52,7 +52,7 @@ class EpiOAuth
 
   public function getRequestToken($params = null)
   {
-    $resp = $this->httpRequest('GET', $this->getUrl($this->requestTokenUrl));
+    $resp = $this->httpRequest('GET', $this->getUrl($this->requestTokenUrl), $params);
     return new EpiOAuthResponse($resp);
   }
 
