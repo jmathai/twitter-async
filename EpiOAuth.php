@@ -25,9 +25,9 @@ class EpiOAuth
       $this->headers[] = $header;
   }
 
-  public function getAccessToken()
+  public function getAccessToken($params = null)
   {
-    $resp = $this->httpRequest('GET', $this->getUrl($this->accessTokenUrl));
+    $resp = $this->httpRequest('GET', $this->getUrl($this->accessTokenUrl), $params);
     return new EpiOAuthResponse($resp);
   }
 
