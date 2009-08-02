@@ -239,6 +239,7 @@ class EpiOAuth
     // keep sigParams for signature generation (exclude '@' params)
     // rename '@key' to 'key'
     $sigParams = array();
+    $hasFile = false;
     if(is_array($params))
     {
       foreach($params as $k => $v)
@@ -252,8 +253,12 @@ class EpiOAuth
         {
           $params[substr($k, 1)] = $v;
           unset($params[$k]);
+          $hasFile = true;
         }
       }
+      
+      if($hasFile === true)
+        $sigParams = array();
     }
 
     $sigParams = array_merge($oauth, (array)$sigParams);
