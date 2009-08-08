@@ -128,7 +128,7 @@ class EpiOAuth
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers); 
     curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-    curl_setopt($ch, CURLOPT_FOLLOW_LOCATION, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     if($this->useSSL === true)
     {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
