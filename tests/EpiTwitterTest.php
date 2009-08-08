@@ -62,6 +62,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(strlen($resp->responseText) > 0, 'responseText was empty');
     $this->assertTrue($resp instanceof EpiTwitterJson, 'response is not an array');
     $this->assertTrue(!empty($resp->screen_name), 'member property screen_name is empty');
+    $this->assertFalse($resp->protected, 'protected is not false');
   }
 
   function testGetWithParameters()
