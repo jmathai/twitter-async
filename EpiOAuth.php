@@ -15,7 +15,8 @@ class EpiOAuth
   protected $useSSL = false;
   protected $headers = array();
   protected $userAgent = 'EpiOAuth (http://github.com/jmathai/twitter-async/tree/)';
-  protected $timeout = 30;
+  protected $connectionTimeout = 5;
+  protected $requestTimeout = 30;
 
   public function addHeader($header)
   {
@@ -83,9 +84,12 @@ class EpiOAuth
     }
   }
 
-  public function setTimeout($timeout)
+  public function setTimeout($requestTimeout = null, $connectionTimeout = null)
   {
-    $this->timeout = floatval($timeout);
+    if($requestTimeout !== null)
+      $this->requestTimeout = floatval($requestTimeout);
+    if($connectionTimeout !== null)
+      $this->connectionTimeout = floatval($connectionTimeout);
   }
 
   public function setToken($token = null, $secret = null)
@@ -127,7 +131,8 @@ class EpiOAuth
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers); 
-    curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $this->requestTimeout);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectionTimeout);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     if($this->useSSL === true)
     {

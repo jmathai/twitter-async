@@ -270,4 +270,13 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(!empty($twitterFriends[0]), 'First result in get statuses friends is empty');;
 
   }
+
+  function testDestructor()
+  {
+    $status = 'Testing destructor ' . time();
+    $resp1 = $this->twitterObj->post_statusesUpdate(array('status' => $status));
+    unset($resp1);
+    $resp2 = $this->twitterObj->get_accountVerify_credentials();
+    $this->assertEquals($status, $resp2->status->text, 'The destructor did not ensure that the status was updated');
+  }
 }

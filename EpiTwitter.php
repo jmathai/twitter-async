@@ -78,6 +78,12 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
       $this->__auth = $auth;
   }
 
+  // ensure that calls complete by blocking for results, NOOP if already returned
+  public function __destruct()
+  {
+    $this->responseText;
+  }
+
   // Implementation of the IteratorAggregate::getIterator() to support foreach ($this as $...)
   public function getIterator ()
   {
