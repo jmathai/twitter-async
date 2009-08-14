@@ -77,12 +77,12 @@ class EpiCurl
           }while($this->execStatus==CURLM_CALL_MULTI_PERFORM);
           $innerSleepInt = 0;
         }
-          $this->storeResponses();
-          if(isset($this->responses[$key]))
-          {
-            return $this->responses[$key];
-          }
-          $runningCurrent = $this->running;
+        $this->storeResponses();
+        if(isset($this->responses[$key]))
+        {
+          return $this->responses[$key];
+        }
+        $runningCurrent = $this->running;
       }
       return null;
     }
@@ -98,9 +98,9 @@ class EpiCurl
       foreach($this->properties as $name => $const)
       {
         $this->responses[$key][$name] = curl_getinfo($done['handle'], $const);
-        curl_multi_remove_handle($this->mc, $done['handle']);
-        curl_close($done['handle']);
       }
+      curl_multi_remove_handle($this->mc, $done['handle']);
+      curl_close($done['handle']);
     }
   }
 
