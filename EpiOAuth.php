@@ -34,21 +34,21 @@ class EpiOAuth
 
   public function getAuthenticateUrl($token = null, $params = null)
   { 
-    $token = $token ? $token : $this->getRequestToken();
+    $token = $token ? $token : $this->getRequestToken($params);
     $addlParams = empty($params) ? '' : '&'.http_build_query($params);
     return $this->getUrl($this->authenticateUrl) . '?oauth_token=' . $token->oauth_token . $addlParams;
   }
 
-  public function getAuthorizeUrl($token = null)
+  public function getAuthorizeUrl($token = null, $params = null)
   {
-    return $this->getAuthorizationUrl($token);
+    $token = $token ? $token : $this->getRequestToken($params);
+    return $this->getUrl($this->authorizeUrl) . '?oauth_token=' . $token->oauth_token;
   }
 
   // DEPRECATED in favor of getAuthorizeUrl()
   public function getAuthorizationUrl($token = null)
   { 
-    $token = $token ? $token : $this->getRequestToken();
-    return $this->getUrl($this->authorizeUrl) . '?oauth_token=' . $token->oauth_token;
+    return $this->getAuthorizeUrl($token);
   }
 
   public function getRequestToken($params = null)
