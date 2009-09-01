@@ -5,7 +5,7 @@
  *    API calls which do not require authentication do not require tokens (i.e. search/trends)
  * 
  *  Full documentation available on github
- *    http://wiki.github.com/jmathai/epicode/epitwitter
+ *    http://wiki.github.com/jmathai/twitter-async
  * 
  *  @author Jaisen Mathai <jaisen@jmathai.com>
  */
@@ -33,7 +33,7 @@ class EpiTwitter extends EpiOAuth
     // calls which do not have a consumerKey are assumed to not require authentication
     if(empty($this->consumerKey))
     {
-      $query = isset($args) ? http_build_query($args) : '';
+      $query = isset($args) ? http_build_query($args, '', '&') : '';
       $url = "{$this->searchUrl}{$path}?{$query}";
       $ch = curl_init($url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

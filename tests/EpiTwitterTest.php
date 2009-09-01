@@ -146,6 +146,9 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $resp = $this->twitterObjBasic->get_search(array('q' => 'hello'));
     $this->assertTrue(is_array($resp->response['results']));
     $this->assertTrue(!empty($resp->results[0]->text), "search response is not an array {$resp->results[0]->text}");
+    $resp = $this->twitterObjBasic->get_search(array('geocode' => '40.757929,-73.985506,25km', 'rpp' => 10));
+    $this->assertTrue(is_array($resp->response['results']));
+    $this->assertTrue(!empty($resp->results[0]->text), "search response is not an array {$resp->results[0]->text}");
   }
 
   function testTrends()

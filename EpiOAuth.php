@@ -35,7 +35,7 @@ class EpiOAuth
   public function getAuthenticateUrl($token = null, $params = null)
   { 
     $token = $token ? $token : $this->getRequestToken($params);
-    $addlParams = empty($params) ? '' : '&'.http_build_query($params);
+    $addlParams = empty($params) ? '' : '&'.http_build_query($params, '', '&');
     return $this->getUrl($this->authenticateUrl) . '?oauth_token=' . $token->oauth_token . $addlParams;
   }
 
