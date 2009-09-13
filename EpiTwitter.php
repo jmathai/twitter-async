@@ -123,7 +123,7 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
 
   public function __get($name)
   {
-    if($this->__resp->code != 200 && $name !== 'responseText')
+    if(($this->__resp->code < 200 || $this->__resp->code >= 400) && $name !== 'responseText')
     {
       switch($this->__auth)
       {
