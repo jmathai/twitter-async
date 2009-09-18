@@ -22,7 +22,7 @@ class EpiTwitter extends EpiOAuth
   protected $searchUrl      = 'http://search.twitter.com';
   protected $userAgent      = 'EpiTwitter (http://github.com/jmathai/twitter-async/tree/)';
 
-  public function __call($name, $params = null)
+  public function __call($name, $params = null/*, $username, $password*/)
   {
     $parts  = explode('_', $name);
     $method = strtoupper(array_shift($parts));
@@ -31,13 +31,21 @@ class EpiTwitter extends EpiOAuth
     $args = !empty($params) ? array_shift($params) : null;
 
     // calls which do not have a consumerKey are assumed to not require authentication
-    if(empty($this->consumerKey))
+    if($this->consumerKey === null)
     {
       $query = isset($args) ? http_build_query($args, '', '&') : '';
-      $url = "{$this->searchUrl}{$path}?{$query}";
-      $ch = curl_init($url);
+      $url = (preg_match('@^/(search|trends)@', $path) ? $this->searchUrl : $this->apiUrl) . "{$path}?{$query}";
+      $ch  = curl_init($url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+      if(!empty($params))
+      {
+        $username = array_shift($params);
+        $password = !empty($params) ? array_shift($params) : null;
+        if($username !== null && $password !== null)
+          curl_setopt($ch, CURLOPT_USERPWD, "{$username}:{$password}");
+      }
 
       return new EpiTwitterJson(EpiCurl::getInstance()->addCurl($ch), self::EPITWITTER_AUTH_BASIC);
     }

@@ -18,6 +18,8 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->twitterObjBasic = new EpiTwitter();
     $this->id = '25451974';
     $this->screenName = 'jmathai_test';
+    $this->twitterUsername = 'jmathai_test';
+    $this->twitterPassword = 'jmathai_test';
   }
 
   function testGetAuthenticateurl()
@@ -159,6 +161,17 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
 
     $resp = $this->twitterObjBasic->get_trendsCurrent();
     $this->assertTrue(is_array($resp->response['trends']), "current trends is empty");
+  }
+
+  function testBasicAuth()
+  {
+    $resp = $this->twitterObjBasic->get_accountVerify_credentials(null, $this->twitterUsername, $this->twitterPassword);
+    $this->assertEquals($resp->screen_name, $this->screenName, "Screenname from response is not {$this->screenName}");
+    $status = 'Basic auth status update ' . time();
+    $resp = $this->twitterObjBasic->post_statusesUpdate(array('status' => $status), $this->twitterUsername, $this->twitterPassword);
+    $this->assertEquals(200, $resp->code, "Status update response code was not 200");
+    $newStatus = $this->twitterObjBasic->get_statusesShow(array('id' => $resp->id));
+    $this->assertEquals($status, $newStatus->text, "Updated status is not what it should be");
   }
 
   function testSSl()
