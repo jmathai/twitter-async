@@ -26,7 +26,8 @@ class EpiCurl
       'code'  => CURLINFO_HTTP_CODE,
       'time'  => CURLINFO_TOTAL_TIME,
       'length'=> CURLINFO_CONTENT_LENGTH_DOWNLOAD,
-      'type'  => CURLINFO_CONTENT_TYPE
+      'type'  => CURLINFO_CONTENT_TYPE,
+      'url'   => CURLINFO_EFFECTIVE_URL
       );
   }
 
@@ -73,9 +74,8 @@ class EpiCurl
             $this->execStatus = curl_multi_exec($this->mc, $this->running);
             usleep($innerSleepInt);
             $innerSleepInt *= $this->sleepIncrement;
-            usleep($innerSleepInt);
           }while($this->execStatus==CURLM_CALL_MULTI_PERFORM);
-          $innerSleepInt = 0;
+          $innerSleepInt = 1;
         }
         $this->storeResponses();
         if(isset($this->responses[$key]))
@@ -144,4 +144,3 @@ class EpiCurlManager
  * Credits:
  *  - (1) Alistair pointed out that curl_multi_add_handle can return CURLM_CALL_MULTI_PERFORM on success.
  */
-?>
