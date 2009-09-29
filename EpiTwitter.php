@@ -37,7 +37,7 @@ class EpiTwitter extends EpiOAuth
       $url = (preg_match('@^/(search|trends)@', $path) ? $this->searchUrl : $this->apiUrl) . "{$path}?{$query}";
       $ch  = curl_init($url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+      curl_setopt($ch, CURLOPT_TIMEOUT, $this->requestTimeout);
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
       if(!empty($params))
       {
