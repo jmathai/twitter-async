@@ -33,8 +33,9 @@ class EpiCurl
 
   public function addCurl($ch)
   {
-    $key = (string)$ch;
+    $key = $this->getKey($ch);
     $this->requests[$key] = $ch;
+    curl_setopt($ch, CURLOPT_HEADERFUNCTION, array($this, 'headerCallback'));
 
     $code = curl_multi_add_handle($this->mc, $ch);
     
@@ -78,7 +79,7 @@ class EpiCurl
           $innerSleepInt = 1;
         }
         $this->storeResponses();
-        if(isset($this->responses[$key]))
+        if(isset($this->responses[$key]['data']))
         {
           return $this->responses[$key];
         }
@@ -87,6 +88,24 @@ class EpiCurl
       return null;
     }
     return false;
+  }
+
+  private function getKey($ch)
+  {
+    return (string)$ch;
+  }
+
+  private function headerCallback($ch, $header)
+  {
+    $_header = trim($header);
+    $colonPos= strpos($_header, ':');
+    if($colonPos > 0)
+    {
+      $key = substr($_header, 0, $colonPos);
+      $val = preg_replace('/^\W+/','',substr($_header, $colonPos));
+      $this->responses[$this->getKey($ch)]['headers'][$key] = $val;
+    }
+    return strlen($header);
   }
 
   private function storeResponses()

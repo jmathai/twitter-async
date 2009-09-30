@@ -33,7 +33,7 @@ class EpiTwitter extends EpiOAuth
     // calls which do not have a consumerKey are assumed to not require authentication
     if($this->consumerKey === null)
     {
-      $query = isset($args) ? http_build_query($args, '', '&') : '';
+      $query = !is_null($args) ? http_build_query($args, '', '&') : '';
       $url = (preg_match('@^/(search|trends)@', $path) ? $this->searchUrl : $this->apiUrl) . "{$path}?{$query}";
       $ch  = curl_init($url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -131,7 +131,7 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
 
   public function __get($name)
   {
-    if(($this->__resp->code < 200 || $this->__resp->code >= 400) && $name !== 'responseText')
+    if(($this->__resp->code < 200 || $this->__resp->code >= 400) && $name !== 'responseText' && $name !== 'headers') // TODO: clean up
     {
       switch($this->__auth)
       {
@@ -146,6 +146,7 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
 
     $this->responseText = $this->__resp->data;
     $this->code         = $this->__resp->code;
+    $this->headers      = $this->__resp->headers;
     $this->response     = json_decode($this->responseText, 1);
     $this->__obj        = json_decode($this->responseText);
 

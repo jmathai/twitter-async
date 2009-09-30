@@ -295,4 +295,10 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $resp2 = $this->twitterObj->get_accountVerify_credentials();
     $this->assertEquals($status, $resp2->status->text, 'The destructor did not ensure that the status was updated');
   }
+
+  function testHeaders()
+  {
+    $resp = $this->twitterObj->get_statusesFollowers();
+    $this->assertTrue(!empty($resp->headers['Status']), 'header status response should not be empty');
+  }
 }
