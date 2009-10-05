@@ -142,6 +142,11 @@ class EpiOAuth
     return $ch;
   }
 
+  protected function emptyHeaders()
+  {
+    $this->headers = array();
+  }
+
   protected function encode_rfc3986($string)
   {
     return str_replace('+', ' ', str_replace('%7E', '~', rawurlencode(($string))));
@@ -187,6 +192,7 @@ class EpiOAuth
     $this->addDefaultHeaders($url, $params['oauth']);
     $ch = $this->curlInit($url);
     $resp  = $this->curl->addCurl($ch);
+    $this->emptyHeaders();
 
     return $resp;
   }
@@ -203,6 +209,8 @@ class EpiOAuth
     else
       curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildHttpQueryRaw($params['request']));
     $resp  = $this->curl->addCurl($ch);
+    $this->emptyHeaders();
+
     return $resp;
   }
 
