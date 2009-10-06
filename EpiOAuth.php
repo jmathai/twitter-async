@@ -332,7 +332,8 @@ class EpiOAuthResponse
   }
 }
 
-class EpiOAuthException extends Exception
+class EpiException extends Exception{}
+class EpiOAuthException extends EpiException
 {
   public static function raise($message, $code)
   {
@@ -347,7 +348,5 @@ class EpiOAuthException extends Exception
     }
   }
 }
-
-
 class EpiOAuthBadRequestException extends EpiOAuthException{}
 class EpiOAuthUnauthorizedException extends EpiOAuthException{}

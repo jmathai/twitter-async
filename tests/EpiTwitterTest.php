@@ -16,6 +16,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->twitterObj = new EpiTwitter($consumer_key, $consumer_secret, $token, $secret);
     $this->twitterObjUnAuth = new EpiTwitter($consumer_key, $consumer_secret);
     $this->twitterObjBasic = new EpiTwitter();
+    $this->twitterObjBadAuth = new EpiTwitter('foo', 'bar', 'foo', 'bar');
     $this->id = '25451974';
     $this->screenName = 'jmathai_test';
     $this->twitterUsername = 'jmathai_test';
@@ -119,16 +120,6 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $token = $this->twitterObj->getRequestToken();
     $authenticateUrl = $this->twitterObj->getAuthorizationUrl($token);
     $this->assertEquals($token->oauth_token, substr($authenticateUrl, (strpos($authenticateUrl, '=')+1)), "token does not equal the one which was passed in");
-  }
-
-  /**
-  * @expectedException EpiOAuthException
-  */
-  function testNoRequiredParameter()
-  {
-    $resp = $this->twitterObj->post_direct_messagesNew( array ( 'user' => $this->screenName, 'text' => ''));
-    $this->assertTrue(!empty($resp->response['error']), "An empty direct message should return an error message");
-
   }
 
   function testResponseAccess()
@@ -300,5 +291,32 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
   {
     $resp = $this->twitterObj->get_statusesFollowers();
     $this->assertTrue(!empty($resp->headers['Status']), 'header status response should not be empty');
+  }
+
+  /**
+  * @expectedException EpiTwitterForbiddenException
+  */
+  function testNoRequiredParameter()
+  {
+    $resp = $this->twitterObj->post_direct_messagesNew( array ( 'user' => $this->screenName, 'text' => ''));
+    $this->assertTrue(!empty($resp->response['error']), "An empty direct message should return an error message");
+  }
+
+  /**
+  * @expectedException EpiTwitterNotAuthorizedException
+  */
+  function testBadCredentials()
+  {
+    $resp = $this->twitterObjBadAuth->post_direct_messagesNew( array ( 'user' => $this->screenName, 'text' => 'hello world'));
+    $this->assertTrue(!empty($resp->response['error']), "Bad credentials should return a not authorized exception");
+  }
+
+  /**
+  * @expectedException EpiTwitterNotFoundException
+  */
+  function testNonExistantUser()
+  {
+    $resp = $this->twitterObj->post_direct_messagesNew( array ( 'user' => 'jaisen_does_not_exist_and_dont_create_or_this_will_break', 'text' => 'seriously'));
+    $this->assertTrue(!empty($resp->response['error']), "Sending a message to a user that doesn't exist should return a 404");
   }
 }

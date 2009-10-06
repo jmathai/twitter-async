@@ -131,19 +131,11 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
 
   public function __get($name)
   {
-    if(($this->__resp->code < 200 || $this->__resp->code >= 400) && $name !== 'responseText' && $name !== 'headers') // TODO: clean up
-    {
-      switch($this->__auth)
-      {
-        case EpiTwitter::EPITWITTER_AUTH_OAUTH:
-          EpiOAuthException::raise($this->__resp->data, $this->__resp->code);
-        case EpiTwitter::EPITWITTER_AUTH_BASIC:
-          throw new EpiTwitterException($this->__resp->data, $this->__resp->code);
-        default:
-          throw new Exception("Unknown EpiTwitter Exception.  Response: {$this->__resp->data}", $this->__resp->code);
-      }
-    }
+    $accessible = array('responseText'=>1,'headers'=>1);
+    if(($this->__resp->code < 200 || $this->__resp->code >= 400) && !isset($accessible[$name]))
+      EpiTwitterException::raise($this->__resp);
 
+    // if no exception is thrown, continue
     $this->responseText = $this->__resp->data;
     $this->code         = $this->__resp->code;
     $this->headers      = $this->__resp->headers;
@@ -168,4 +160,29 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
   }
 }
 
-class EpiTwitterException extends Exception {}
+class EpiTwitterException extends EpiException 
+{
+  public static function raise($response)
+  {
+    $message = "An exception occurred in EpiTwitter\n"
+             . "The response is {$response->data}\n"
+             . "The headers are " . print_r($response->headers, true) . "\n";
+    switch($response->code)
+    {
+      case 400:
+        throw new EpiTwitterBadRequestException($message, $response->code);
+      case 401:
+        throw new EpiTwitterNotAuthorizedException($message, $response->code);
+      case 403:
+        throw new EpiTwitterForbiddenException($message, $response->code);
+      case 404:
+        throw new EpiTwitterNotFoundException($message, $response->code);
+      default:
+        throw new EpiTwitterException($message, $response->code);
+    }
+  }
+}
+class EpiTwitterBadRequestException extends EpiTwitterException{}
+class EpiTwitterNotAuthorizedException extends EpiTwitterException{}
+class EpiTwitterForbiddenException extends EpiTwitterException{}
+class EpiTwitterNotFoundException extends EpiTwitterException{}
