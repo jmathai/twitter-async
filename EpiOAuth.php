@@ -12,6 +12,7 @@ class EpiOAuth
   protected $token;
   protected $tokenSecret;
   protected $signatureMethod;
+  protected $debug = false;
   protected $useSSL = false;
   protected $headers = array();
   protected $userAgent = 'EpiOAuth (http://github.com/jmathai/twitter-async/tree/)';
@@ -82,6 +83,11 @@ class EpiOAuth
         return $this->httpPost($url, $params, $isMultipart);
         break;
     }
+  }
+
+  public function setDebug($bool=false)
+  {
+    $this->debug = (bool)$bool;
   }
 
   public function setTimeout($requestTimeout = null, $connectionTimeout = null)
@@ -320,7 +326,7 @@ class EpiOAuthResponse
   public function __get($name)
   {
     if($this->__resp->code != 200)
-      EpiOAuthException::raise($this->__resp->data, $this->__resp->code);
+      EpiOAuthException::raise($this->__resp, $this->debug);
 
     parse_str($this->__resp->data, $result);
     foreach($result as $k => $v)
@@ -335,9 +341,14 @@ class EpiOAuthResponse
 class EpiException extends Exception{}
 class EpiOAuthException extends EpiException
 {
-  public static function raise($message, $code)
+  public static function raise($response, $debug)
   {
-    switch($code)
+    $message = "An exception occurred in EpiTwitter\n"
+             . "The response is {$response->data}\n";
+    if($debug === true)
+      $message .= "The headers are " . print_r($response->headers, true) . "\n";
+
+    switch($response->code)
     {
       case 400:
         throw new EpiOAuthBadRequestException($message, $code);

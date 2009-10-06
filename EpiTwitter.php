@@ -47,7 +47,7 @@ class EpiTwitter extends EpiOAuth
           curl_setopt($ch, CURLOPT_USERPWD, "{$username}:{$password}");
       }
 
-      return new EpiTwitterJson(EpiCurl::getInstance()->addCurl($ch), self::EPITWITTER_AUTH_BASIC);
+      return new EpiTwitterJson(EpiCurl::getInstance()->addCurl($ch), $this->debug);
     }
 
     // parse the keys to determine if this should be multipart
@@ -65,7 +65,7 @@ class EpiTwitter extends EpiOAuth
     }
 
     $url = $this->getUrl("{$this->apiUrl}{$path}");
-    return new EpiTwitterJson(call_user_func(array($this, 'httpRequest'), $method, $url, $args, $isMultipart));
+    return new EpiTwitterJson(call_user_func(array($this, 'httpRequest'), $method, $url, $args, $isMultipart), $this->debug);
   }
 
   public function __construct($consumerKey = null, $consumerSecret = null, $oauthToken = null, $oauthTokenSecret = null)
@@ -77,13 +77,12 @@ class EpiTwitter extends EpiOAuth
 
 class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
 {
+  private $debug;
   private $__resp;
-  private $__auth = EpiTwitter::EPITWITTER_AUTH_OAUTH;
-  public function __construct($response, $auth = null)
+  public function __construct($response, $debug = false)
   {
     $this->__resp = $response;
-    if($auth !== null)
-      $this->__auth = $auth;
+    $this->debug  = $debug;
   }
 
   // ensure that calls complete by blocking for results, NOOP if already returned
@@ -133,7 +132,7 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
   {
     $accessible = array('responseText'=>1,'headers'=>1);
     if(($this->__resp->code < 200 || $this->__resp->code >= 400) && !isset($accessible[$name]))
-      EpiTwitterException::raise($this->__resp);
+      EpiTwitterException::raise($this->__resp, $this->debug);
 
     // if no exception is thrown, continue
     $this->responseText = $this->__resp->data;
@@ -162,11 +161,13 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
 
 class EpiTwitterException extends EpiException 
 {
-  public static function raise($response)
+  public static function raise($response, $debug)
   {
     $message = "An exception occurred in EpiTwitter\n"
-             . "The response is {$response->data}\n"
-             . "The headers are " . print_r($response->headers, true) . "\n";
+             . "The response is {$response->data}\n";
+    if($debug === true)
+      $message .= "The headers are " . print_r($response->headers, true) . "\n";
+ 
     switch($response->code)
     {
       case 400:

@@ -293,6 +293,32 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(!empty($resp->headers['Status']), 'header status response should not be empty');
   }
 
+  function testExceptionWithDebug()
+  {
+    $this->twitterObj->setDebug(false);
+    $resp = $this->twitterObj->post_direct_messagesNew( array ( 'user' => 'jaisen_does_not_exist_and_dont_create_or_this_will_break', 'text' => 'seriously'));
+    $this->twitterObj->setDebug(true);
+    $resp2 = $this->twitterObj->post_direct_messagesNew( array ( 'user' => 'jaisen_does_not_exist_and_dont_create_or_this_will_break', 'text' => 'seriously'));
+
+    try
+    {
+      $resp->response;
+    }
+    catch(EpiTwitterException $e)
+    {
+      $this->assertFalse(stristr($e->getMessage(), '[Status] => 404 Not Found'), "With debug off there should be no headers");
+    }
+
+    try
+    {
+      $resp2->response;
+    }
+    catch(EpiTwitterException $e)
+    {
+      $this->assertTrue(stristr($e->getMessage(), '[Status] => 404 Not Found') !== false, "With debug on there should be headers");
+    }
+  }
+
   /**
   * @expectedException EpiTwitterForbiddenException
   */
