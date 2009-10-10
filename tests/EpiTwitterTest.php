@@ -297,25 +297,30 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
   {
     $this->twitterObj->setDebug(false);
     $resp = $this->twitterObj->post_direct_messagesNew( array ( 'user' => 'jaisen_does_not_exist_and_dont_create_or_this_will_break', 'text' => 'seriously'));
+
+    try
+    {
+      $resp->response;
+      $this->fail('Should throw a 404 for no user exists');
+    }
+    catch(EpiTwitterException $e)
+    {
+      $messageArr = json_decode($e->getMessage(), true);
+      $this->assertTrue(empty($messageArr['headers']), "With debug off there should be no headers");
+    }
+
     $this->twitterObj->setDebug(true);
     $resp2 = $this->twitterObj->post_direct_messagesNew( array ( 'user' => 'jaisen_does_not_exist_and_dont_create_or_this_will_break', 'text' => 'seriously'));
 
     try
     {
-      $resp->response;
-    }
-    catch(EpiTwitterException $e)
-    {
-      $this->assertFalse(stristr($e->getMessage(), '[Status] => 404 Not Found'), "With debug off there should be no headers");
-    }
-
-    try
-    {
       $resp2->response;
+      $this->fail('Should throw a 404 for no user exists');
     }
     catch(EpiTwitterException $e)
     {
-      $this->assertTrue(stristr($e->getMessage(), '[Status] => 404 Not Found') !== false, "With debug on there should be headers");
+      $messageArr = json_decode($e->getMessage(), true);
+      $this->assertFalse(stristr($messageArr['headers']['Status'], '404 Not Found'), "With debug off there should be no headers");
     }
   }
 

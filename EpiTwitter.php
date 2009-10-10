@@ -163,10 +163,12 @@ class EpiTwitterException extends EpiException
 {
   public static function raise($response, $debug)
   {
-    $message = "An exception occurred in EpiTwitter\n"
-             . "The response is {$response->data}\n";
+    $message = array();
+    $message['text'] = 'An exception occurred in EpiTwitter';
+    $message['response'] = $response->data;
     if($debug === true)
-      $message .= "The headers are " . print_r($response->headers, true) . "\n";
+      $message['headers'] = json_encode($response->headers);
+    $message = json_encode($message);
  
     switch($response->code)
     {
