@@ -350,4 +350,13 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $resp = $this->twitterObj->post_direct_messagesNew( array ( 'user' => 'jaisen_does_not_exist_and_dont_create_or_this_will_break', 'text' => 'seriously'));
     $this->assertTrue(!empty($resp->response['error']), "Sending a message to a user that doesn't exist should return a 404");
   }
+
+  function testGetLists()
+  {
+    $method = "get_{$this->id}Lists";
+    $resp = $this->twitterObj->$method();
+    $this->assertTrue(count($resp->lists) > 0, 'List count not greater than 0');
+    $this->assertEquals($resp->lists[0]->id, 1900727, 'List name is not "Test"');
+    $this->assertEquals($resp->lists[0]->member_count, 1, 'List member count not equal to 1');
+  }
 }

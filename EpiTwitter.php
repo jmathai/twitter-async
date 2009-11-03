@@ -28,6 +28,8 @@ class EpiTwitter extends EpiOAuth
     $method = strtoupper(array_shift($parts));
     $parts  = implode('_', $parts);
     $path   = '/' . preg_replace('/[A-Z]|[0-9]+/e', "'/'.strtolower('\\0')", $parts) . '.json';
+    /* HACK: this is required for list support that starts with a user id */
+    $path = str_replace('//','/',$path);
     $args = !empty($params) ? array_shift($params) : null;
 
     // calls which do not have a consumerKey are assumed to not require authentication
