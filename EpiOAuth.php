@@ -330,6 +330,11 @@ class EpiOAuthResponse
 
     return $result[$name];
   }
+
+  public function __toString()
+  {
+    return $this->__resp->data;
+  }
 }
 
 class EpiOAuthException extends Exception

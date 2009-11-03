@@ -201,10 +201,10 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
     $this->assertEquals($resp->code, 200, 'Response code was not 200');
 
-//  $file = dirname(__FILE__) . '/avatar_test_image.png';
-//  $resp = $this->twitterObj->post_accountUpdate_profile_image(array('@image' => "@{$file}", 'type' => 'image/png'));
-//  // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-//  $this->assertEquals($resp->code, 200, 'Response code was not 200');
+    $file = dirname(__FILE__) . '/avatar_test_image.png';
+    $resp = $this->twitterObj->post_accountUpdate_profile_image(array('@image' => "@{$file}", 'type' => 'image/png'));
+    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
+    $this->assertEquals($resp->code, 200, 'Response code was not 200');
   }
 
   function testUpdateBackground()
@@ -220,14 +220,14 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertEquals($resp->code, 200, 'Response code was not 200');
 
     $file = dirname(__FILE__) . '/avatar_test_image.png';
-//  $resp = $this->twitterObj->post_accountUpdate_profile_background_image(array('@image' => "@{$file}", 'type' => 'image/png'));
-//  // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-//  $this->assertEquals($resp->code, 200, 'Response code was not 200');
+    $resp = $this->twitterObj->post_accountUpdate_profile_background_image(array('@image' => "@{$file}", 'type' => 'image/png'));
+    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
+    $this->assertEquals($resp->code, 200, 'Response code was not 200');
 
-//  $file = dirname(__FILE__) . '/avatar_test_image.png';
-//  $resp = $this->twitterObj->post_accountUpdate_profile_background_image(array('@image' => "@{$file}", 'type' => 'image/png', 'tile' => 'true'));
-//  // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-//  $this->assertEquals($resp->code, 200, 'Response code was not 200');
+    $file = dirname(__FILE__) . '/avatar_test_image.png';
+    $resp = $this->twitterObj->post_accountUpdate_profile_background_image(array('@image' => "@{$file}", 'type' => 'image/png', 'tile' => 'true'));
+    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
+    $this->assertEquals($resp->code, 200, 'Response code was not 200');
   }
 
   function testCreateFriendship()
@@ -300,5 +300,14 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
   {
     $resp = $this->twitterObj->get_statusesFollowers();
     $this->assertTrue(!empty($resp->headers['Status']), 'header status response should not be empty');
+  }
+
+  function testGetLists()
+  {
+    $method = "get_{$this->id}Lists";
+    $resp = $this->twitterObj->$method();
+    $this->assertTrue(count($resp->lists) > 0, 'List count not greater than 0');
+    $this->assertEquals($resp->lists[0]->id, 1900727, 'List name is not "Test"');
+    $this->assertEquals($resp->lists[0]->member_count, 1, 'List member count not equal to 1');
   }
 }
