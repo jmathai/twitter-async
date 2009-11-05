@@ -19,44 +19,96 @@ class EpiTwitter extends EpiOAuth
   protected $authorizeUrl   = 'http://twitter.com/oauth/authorize';
   protected $authenticateUrl= 'http://twitter.com/oauth/authenticate';
   protected $apiUrl         = 'http://twitter.com';
+  protected $apiVersionedUrl= 'http://api.twitter.com';
   protected $searchUrl      = 'http://search.twitter.com';
   protected $userAgent      = 'EpiTwitter (http://github.com/jmathai/twitter-async/tree/)';
+  protected $apiVersion     = '1';
+
+  /* OAuth methods */
+  public function delete($endpoint, $params = null)
+  {
+    return $this->request('DELETE', $endpoint, $params);
+  }
+
+  public function get($endpoint, $params = null)
+  {
+    return $this->request('GET', $endpoint, $params);
+  }
+
+  public function post($endpoint, $params = null)
+  {
+    return $this->request('POST', $endpoint, $params);
+  }
+
+  /* Basic auth methods */
+  public function delete_basic($endpoint, $params = null, $username = null, $password = null)
+  {
+    return $this->request_basic('DELETE', $endpoint, $params, $username, $password);
+  }
+
+  public function get_basic($endpoint, $params = null, $username = null, $password = null)
+  {
+    return $this->request_basic('GET', $endpoint, $params, $username, $password);
+  }
+
+  public function post_basic($endpoint, $params = null, $username = null, $password = null)
+  {
+    return $this->request_basic('POST', $endpoint, $params, $username, $password);
+  }
+
+  public function useApiVersion($version = null)
+  {
+    $this->apiVersion = $version;
+  }
+
+  public function __construct($consumerKey = null, $consumerSecret = null, $oauthToken = null, $oauthTokenSecret = null)
+  {
+    parent::__construct($consumerKey, $consumerSecret, self::EPITWITTER_SIGNATURE_METHOD);
+    $this->setToken($oauthToken, $oauthTokenSecret);
+  }
 
   public function __call($name, $params = null/*, $username, $password*/)
   {
     $parts  = explode('_', $name);
     $method = strtoupper(array_shift($parts));
     $parts  = implode('_', $parts);
-    $path   = '/' . preg_replace('/[A-Z]|[0-9]+/e', "'/'.strtolower('\\0')", $parts) . '.json';
+    $endpoint   = '/' . preg_replace('/[A-Z]|[0-9]+/e', "'/'.strtolower('\\0')", $parts) . '.json';
     /* HACK: this is required for list support that starts with a user id */
-    $path = str_replace('//','/',$path);
+    $endpoint = str_replace('//','/',$endpoint);
     $args = !empty($params) ? array_shift($params) : null;
 
     // calls which do not have a consumerKey are assumed to not require authentication
     if($this->consumerKey === null)
     {
-      $query = !is_null($args) ? http_build_query($args, '', '&') : '';
-      $url = (preg_match('@^/(search|trends)@', $path) ? $this->searchUrl : $this->apiUrl) . "{$path}?{$query}";
-      $ch  = curl_init($url);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($ch, CURLOPT_TIMEOUT, $this->requestTimeout);
-      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
       if(!empty($params))
       {
         $username = array_shift($params);
         $password = !empty($params) ? array_shift($params) : null;
-        if($username !== null && $password !== null)
-          curl_setopt($ch, CURLOPT_USERPWD, "{$username}:{$password}");
       }
 
-      return new EpiTwitterJson(EpiCurl::getInstance()->addCurl($ch), $this->debug);
+      return $this->request_basic($method, $endpoint, $args, $username, $password);
     }
 
+    return $this->request($method, $endpoint, $args);
+  }
+
+  private function getApiUrl($endpoint)
+  {
+    if(preg_match('@^/(search|trends)@', $endpoint))
+      return "{$this->searchUrl}{$endpoint}";
+    elseif(!empty($this->apiVersion))
+      return "{$this->apiVersionedUrl}/{$this->apiVersion}{$endpoint}";
+    else
+      return "{$this->apiUrl}{$endpoint}";
+  }
+
+  private function request($method, $endpoint, $params = null)
+  {
     // parse the keys to determine if this should be multipart
     $isMultipart = false;
-    if($args)
+    if($params)
     {
-      foreach($args as $k => $v)
+      foreach($params as $k => $v)
       {
         if(strncmp('@',$k,1) === 0)
         {
@@ -66,14 +118,26 @@ class EpiTwitter extends EpiOAuth
       }
     }
 
-    $url = $this->getUrl("{$this->apiUrl}{$path}");
-    return new EpiTwitterJson(call_user_func(array($this, 'httpRequest'), $method, $url, $args, $isMultipart), $this->debug);
+    $url = $this->getUrl($this->getApiUrl($endpoint));
+    return new EpiTwitterJson(call_user_func(array($this, 'httpRequest'), $method, $url, $params, $isMultipart), $this->debug);
   }
 
-  public function __construct($consumerKey = null, $consumerSecret = null, $oauthToken = null, $oauthTokenSecret = null)
+  private function request_basic($method, $endpoint, $params = null, $username = null, $password = null)
   {
-    parent::__construct($consumerKey, $consumerSecret, self::EPITWITTER_SIGNATURE_METHOD);
-    $this->setToken($oauthToken, $oauthTokenSecret);
+    $url = $this->getApiUrl($endpoint);
+    if($method === 'GET')
+      $url .= is_null($params) ? '' : '?'.http_build_query($params, '', '&');
+    $ch  = curl_init($url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $this->requestTimeout);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    if($method === 'POST' && $params !== null)
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+    if(!empty($username) && !empty($password))
+      curl_setopt($ch, CURLOPT_USERPWD, "{$username}:{$password}");
+
+    return new EpiTwitterJson(EpiCurl::getInstance()->addCurl($ch), $this->debug);
   }
 }
 
