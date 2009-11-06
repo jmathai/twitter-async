@@ -23,34 +23,34 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->twitterPassword = 'jmathai_test';
   }
 
-//function testGetAuthenticateurl()
-//{
-//  $aUrl = $this->twitterObjUnAuth->getAuthenticateUrl();
-//  $this->assertTrue(strstr($aUrl, 'http://twitter.com/oauth/authenticate') !== false, 'Authenticate url did not contain member definition from EpiTwitter class');
+  function testGetAuthenticateurl()
+  {
+    $aUrl = $this->twitterObjUnAuth->getAuthenticateUrl();
+    $this->assertTrue(strstr($aUrl, 'http://twitter.com/oauth/authenticate') !== false, 'Authenticate url did not contain member definition from EpiTwitter class');
 
-//  $aUrl = $this->twitterObjUnAuth->getAuthenticateUrl(null, array('force_login'=>'true'));
-//  $this->assertTrue(strstr($aUrl, 'http://twitter.com/oauth/authenticate') !== false, 'Authenticate url did not contain member definition from EpiTwitter class');
-//  $this->assertTrue(strstr($aUrl, 'force_login=true') !== false, 'Authenticate url did not contain member definition from EpiTwitter class');
-//}
+    $aUrl = $this->twitterObjUnAuth->getAuthenticateUrl(null, array('force_login'=>'true'));
+    $this->assertTrue(strstr($aUrl, 'http://twitter.com/oauth/authenticate') !== false, 'Authenticate url did not contain member definition from EpiTwitter class');
+    $this->assertTrue(strstr($aUrl, 'force_login=true') !== false, 'Authenticate url did not contain member definition from EpiTwitter class');
+  }
 
-//function testGetAuthorizeUrl()
-//{
-//  $aUrl = $this->twitterObjUnAuth->getAuthorizeUrl($this->token);
-//  $this->assertTrue(strstr($aUrl, 'http://twitter.com/oauth/authorize') !== false, 'Authorize url did not contain member definition from EpiTwitter class');
-//}
+  function testGetAuthorizeUrl()
+  {
+    $aUrl = $this->twitterObjUnAuth->getAuthorizeUrl($this->token);
+    $this->assertTrue(strstr($aUrl, 'http://twitter.com/oauth/authorize') !== false, 'Authorize url did not contain member definition from EpiTwitter class');
+  }
 
-//function testGetRequestToken()
-//{
-//  $resp = $this->twitterObjUnAuth->getRequestToken();
-//  $this->assertTrue(strlen($resp->oauth_token) > 0, "oauth_token is longer than 0");
-//  $this->assertTrue(strlen($resp->oauth_token_secret) > 0, "oauth_token_secret is longer than 0");
-//  $this->assertTrue(strlen($resp->oauth_callback_confirmed) == 0, "oauth_callback is not = true");
+  function testGetRequestToken()
+  {
+    $resp = $this->twitterObjUnAuth->getRequestToken();
+    $this->assertTrue(strlen($resp->oauth_token) > 0, "oauth_token is longer than 0");
+    $this->assertTrue(strlen($resp->oauth_token_secret) > 0, "oauth_token_secret is longer than 0");
+    $this->assertTrue(strlen($resp->oauth_callback_confirmed) == 0, "oauth_callback is not = true");
 
-//  $resp = $this->twitterObjUnAuth->getRequestToken(array('oauth_callback' => urlencode('http://www.yahoo.com')));
-//  $this->assertTrue(strlen($resp->oauth_token) > 0, "oauth_token is longer than 0");
-//  $this->assertTrue(strlen($resp->oauth_token_secret) > 0, "oauth_token_secret is longer than 0");
-//  $this->assertTrue($resp->oauth_callback_confirmed == 'true', "oauth_callback is not = true");
-//}
+    $resp = $this->twitterObjUnAuth->getRequestToken(array('oauth_callback' => urlencode('http://www.yahoo.com')));
+    $this->assertTrue(strlen($resp->oauth_token) > 0, "oauth_token is longer than 0");
+    $this->assertTrue(strlen($resp->oauth_token_secret) > 0, "oauth_token_secret is longer than 0");
+    $this->assertTrue($resp->oauth_callback_confirmed == 'true', "oauth_callback is not = true");
+  }
 
   function testBooleanResponse()
   {
@@ -277,18 +277,8 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
     $this->assertEquals($resp->code, 200, 'Response code was not 200');
 
-    $file = dirname(__FILE__) . '/avatar_test_image.png';
-    $resp = $this->twitterObj->post('/account/update_profile_image.json', array('@image' => "@{$file}"));
-    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-    $this->assertEquals($resp->code, 200, 'Response code was not 200');
-
     // __call
     $file = dirname(__FILE__) . '/avatar_test_image.jpg';
-    $resp = $this->twitterObj->post_accountUpdate_profile_image(array('@image' => "@{$file}"));
-    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-    $this->assertEquals($resp->code, 200, 'Response code was not 200');
-
-    $file = dirname(__FILE__) . '/avatar_test_image.png';
     $resp = $this->twitterObj->post_accountUpdate_profile_image(array('@image' => "@{$file}"));
     // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
     $this->assertEquals($resp->code, 200, 'Response code was not 200');
@@ -297,21 +287,6 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
   function testUpdateBackground()
   {
     $file = dirname(__FILE__) . '/avatar_test_image.jpg';
-    $resp = $this->twitterObj->post('/account/update_profile_background_image.json', array('@image' => "@{$file}"));
-    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-    $this->assertEquals($resp->code, 200, 'Response code was not 200');
-
-    $file = dirname(__FILE__) . '/avatar_test_image.jpg';
-    $resp = $this->twitterObj->post('/account/update_profile_background_image.json', array('@image' => "@{$file}", 'tile' => 'true'));
-    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-    $this->assertEquals($resp->code, 200, 'Response code was not 200');
-
-    $file = dirname(__FILE__) . '/avatar_test_image.png';
-    $resp = $this->twitterObj->post('/account/update_profile_background_image.json', array('@image' => "@{$file}"));
-    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-    $this->assertEquals($resp->code, 200, 'Response code was not 200');
-
-    $file = dirname(__FILE__) . '/avatar_test_image.png';
     $resp = $this->twitterObj->post('/account/update_profile_background_image.json', array('@image' => "@{$file}", 'tile' => 'true'));
     // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
     $this->assertEquals($resp->code, 200, 'Response code was not 200');
@@ -319,21 +294,6 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     // __call
     $file = dirname(__FILE__) . '/avatar_test_image.jpg';
     $resp = $this->twitterObj->post_accountUpdate_profile_background_image(array('@image' => "@{$file}"));
-    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-    $this->assertEquals($resp->code, 200, 'Response code was not 200');
-
-    $file = dirname(__FILE__) . '/avatar_test_image.jpg';
-    $resp = $this->twitterObj->post_accountUpdate_profile_background_image(array('@image' => "@{$file}", 'tile' => 'true'));
-    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-    $this->assertEquals($resp->code, 200, 'Response code was not 200');
-
-    $file = dirname(__FILE__) . '/avatar_test_image.png';
-    $resp = $this->twitterObj->post_accountUpdate_profile_background_image(array('@image' => "@{$file}"));
-    // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
-    $this->assertEquals($resp->code, 200, 'Response code was not 200');
-
-    $file = dirname(__FILE__) . '/avatar_test_image.png';
-    $resp = $this->twitterObj->post_accountUpdate_profile_background_image(array('@image' => "@{$file}", 'tile' => 'true'));
     // api seems to be a bit behind and doesn't respond with the new image url - use code instead for now
     $this->assertEquals($resp->code, 200, 'Response code was not 200');
   }

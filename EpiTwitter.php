@@ -23,6 +23,7 @@ class EpiTwitter extends EpiOAuth
   protected $searchUrl      = 'http://search.twitter.com';
   protected $userAgent      = 'EpiTwitter (http://github.com/jmathai/twitter-async/tree/)';
   protected $apiVersion     = '1';
+  protected $isAsynchronous = false;
 
   /* OAuth methods */
   public function delete($endpoint, $params = null)
@@ -59,6 +60,11 @@ class EpiTwitter extends EpiOAuth
   public function useApiVersion($version = null)
   {
     $this->apiVersion = $version;
+  }
+
+  public function useAsynchronous($async = true)
+  {
+    $this->isAsynchronous = (bool)$async;
   }
 
   public function __construct($consumerKey = null, $consumerSecret = null, $oauthToken = null, $oauthTokenSecret = null)
@@ -119,7 +125,11 @@ class EpiTwitter extends EpiOAuth
     }
 
     $url = $this->getUrl($this->getApiUrl($endpoint));
-    return new EpiTwitterJson(call_user_func(array($this, 'httpRequest'), $method, $url, $params, $isMultipart), $this->debug);
+    $resp= new EpiTwitterJson(call_user_func(array($this, 'httpRequest'), $method, $url, $params, $isMultipart), $this->debug);
+    if(!$this->isAsynchronous)
+      $resp->responseText;
+
+    return $resp;
   }
 
   private function request_basic($method, $endpoint, $params = null, $username = null, $password = null)
@@ -137,7 +147,11 @@ class EpiTwitter extends EpiOAuth
     if(!empty($username) && !empty($password))
       curl_setopt($ch, CURLOPT_USERPWD, "{$username}:{$password}");
 
-    return new EpiTwitterJson(EpiCurl::getInstance()->addCurl($ch), $this->debug);
+    $resp = new EpiTwitterJson(EpiCurl::getInstance()->addCurl($ch), $this->debug);
+    if(!$this->isAsynchronous)
+      $resp->responseText;
+
+    return $resp;
   }
 }
 
@@ -229,12 +243,7 @@ class EpiTwitterException extends EpiException
 {
   public static function raise($response, $debug)
   {
-    $message = array();
-    $message['text'] = 'An exception occurred in EpiTwitter';
-    $message['response'] = $response->data;
-    if($debug === true)
-      $message['headers'] = json_encode($response->headers);
-    $message = json_encode($message);
+    $message = $response->data;
  
     switch($response->code)
     {
