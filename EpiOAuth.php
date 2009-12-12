@@ -82,6 +82,10 @@ class EpiOAuth
       case 'POST':
         return $this->httpPost($url, $params, $isMultipart);
         break;
+      case 'DELETE':
+        return $this->httpDelete($url, $params);
+        break;
+
     }
   }
 
@@ -182,6 +186,16 @@ class EpiOAuth
 
     $signatureBaseString = "{$method}&{$normalizedUrl}&{$concatenatedParams}";
     return $this->signString($signatureBaseString);
+  }
+
+  protected function httpDelete($url, $params) {
+      $this->addDefaultHeaders($url, $params['oauth']);
+      $ch = $this->curlInit($url);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildHttpQueryRaw($params['request']));
+      $resp = $this->curl->addCurl($ch);
+      $this->emptyHeaders();
+      return $resp;
   }
 
   protected function httpGet($url, $params = null)
