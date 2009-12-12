@@ -108,7 +108,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue($k > 0, 'test did not properly loop over followers');
   }
 
-  function testPostStatus()
+  function testPostStatusAndRetweet()
   {
     $statusText = 'Testing really weird chars "~!@#$%^&*()-+\[]{}:\'>?<≈ç∂´ß©ƒ˙˙∫√√ƒƒ∂∂†¥∆∆∆ (time: ' . time() . ')';
     $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText));
@@ -117,6 +117,10 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $statusText = 'Testing a random status (time: ' . time() . ')';
     $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText));
     $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly');
+    // get a public status and retweet it
+    $public = $this->twitterObjBasic->get_basic('/search.json', array('q' => 'hello'));
+    $resp = $this->twitterObj->post("/statuses/retweet/{$public->results[0]->id}.json");
+    $this->assertEquals('RT', substr($resp->text, 0, 2), 'Retweet response text did not start with RT');
     // reply to it
     $statusText = 'Testing a random status with reply to id (reply to: ' . $resp->id . ')';
     $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText, 'in_reply_to_status_id' => "{$resp->id}"));
@@ -260,14 +264,10 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $screenName = ucwords(strtolower($this->screenName));
     $resp = $this->twitterObj->get("/statuses/followers/{$screenName}.json");
     $this->assertTrue(count($resp) > 0, "Count for followers was not larger than 0");
-    $resp = $this->twitterObj->get("/statuses/followers/{$screenName}.json", array('page' => 100));
-    $this->assertTrue(count($resp) == 0, "Page 100 should return a count of 0");
     // __call
     $method = "get_statusesFollowers{$screenName}";
     $resp = $this->twitterObj->$method();
     $this->assertTrue(count($resp) > 0, "Count for followers was not larger than 0");
-    $resp = $this->twitterObj->$method(array('page' => 100));
-    $this->assertTrue(count($resp) == 0, "Page 100 should return a count of 0");
   }
 
   function testUpdateAvatar()
@@ -402,11 +402,19 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(!empty($twitterFriends[0]), 'First result in get statuses friends is empty');;
   }
 
-  function testGetLists()
+  function testCreateAndDeleteList()
   {
-    $method = "get_{$this->id}Lists";
-    $resp = $this->twitterObj->get("/{$this->id}/lists.json");
-    $this->assertTrue(count($resp->lists) > 0, 'List count not greater than 0');
+    // create the list
+    $name = 'test list ' . rand(0,1000);
+    $resp = $this->twitterObj->post("/{$this->twitterUsername}/lists.json", array('name' => $name, 'mode' => 'public', 'description' => "List {$name}"));
+    $this->assertEquals($resp->name, $name, "List name is not {$name} but rather {$resp->list}");
+    // delete the list
+    $respDel = $this->twitterObj->delete("/{$this->twitterUsername}/lists/{$resp->id}.json");
+    $this->assertEquals($respDel->id, $resp->id, "Deleted list id doesn't match the id of the list we just created");
+    // verify the delete worked
+    $respGet = $this->twitterObj->get("/{$this->twitterUsername}/lists/{$resp->id}.json");
+    $this->assertEquals($respGet->code, '404', "Getting the previously deleted list should return 404 and not {$respGet->code}");
+    
     $this->assertEquals($resp->lists[0]->id, 1900727, 'List name is not "Test"');
     $this->assertEquals($resp->lists[0]->member_count, 1, 'List member count not equal to 1');
   }
