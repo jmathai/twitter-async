@@ -29,7 +29,7 @@ class EpiOAuth
 
   public function getAccessToken($params = null)
   {
-    $resp = $this->httpRequest('GET', $this->getUrl($this->accessTokenUrl), $params);
+    $resp = $this->httpRequest('POST', $this->getUrl($this->accessTokenUrl), $params);
     return new EpiOAuthResponse($resp);
   }
 
@@ -54,7 +54,7 @@ class EpiOAuth
 
   public function getRequestToken($params = null)
   {
-    $resp = $this->httpRequest('GET', $this->getUrl($this->requestTokenUrl), $params);
+    $resp = $this->httpRequest('POST', $this->getUrl($this->requestTokenUrl), $params);
     return new EpiOAuthResponse($resp);
   }
 
@@ -281,6 +281,11 @@ class EpiOAuth
     $oauth['oauth_nonce'] = $this->generateNonce();
     $oauth['oauth_timestamp'] = !isset($this->timestamp) ? time() : $this->timestamp; // for unit test
     $oauth['oauth_signature_method'] = $this->signatureMethod;
+    if(isset($params['oauth_verifier']))
+    {
+      $oauth['oauth_verifier'] = $params['oauth_verifier'];
+      unset($params['oauth_verifier']);
+    }
     $oauth['oauth_version'] = $this->version;
     // encode all oauth values
     foreach($oauth as $k => $v)
