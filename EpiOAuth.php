@@ -144,6 +144,9 @@ class EpiOAuth
     curl_setopt($ch, CURLOPT_TIMEOUT, $this->requestTimeout);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectionTimeout);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    if(isset($_SERVER ['SERVER_ADDR']) && !empty($_SERVER['SERVER_ADDR']))
+      curl_setopt($ch, CURLOPT_INTERFACE, $_SERVER ['SERVER_ADDR']);
+
     if($this->useSSL === true)
     {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
