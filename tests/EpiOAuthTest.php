@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_STRICT);
 require_once '../EpiCurl.php';
 require_once '../EpiOAuth.php';
 require_once 'PHPUnit/Framework.php';

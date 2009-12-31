@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_STRICT);
 require_once '../EpiCurl.php';
 require_once '../EpiOAuth.php';
 require_once '../EpiTwitter.php';
@@ -6,21 +7,21 @@ require_once 'PHPUnit/Framework.php';
 
 class EpiTwitterTest extends PHPUnit_Framework_TestCase
 {
+  public $consumer_key = 'jdv3dsDhsYuJRlZFSuI2fg';
+  public $consumer_secret = 'NNXamBsBFG8PnEmacYs0uCtbtsz346OJSod7Dl94';
+  public $token = '25451974-uakRmTZxrSFQbkDjZnTAsxDO5o9kacz2LT6kqEHA';
+  public $secret= 'CuQPQ1WqIdSJDTIkDUlXjHpbcRao9lcKhQHflqGE8';
+  public $id = '25451974';
+  public $screenName = 'jmathai_test';
+  public $twitterUsername = 'jmathai_test';
+  public $twitterPassword = 'jmathai_test';
   function setUp()
   {
     // key and secret for a test app (don't really care if this is public)
-    $consumer_key = 'jdv3dsDhsYuJRlZFSuI2fg';
-    $consumer_secret = 'NNXamBsBFG8PnEmacYs0uCtbtsz346OJSod7Dl94';
-    $token = '25451974-uakRmTZxrSFQbkDjZnTAsxDO5o9kacz2LT6kqEHA';
-    $secret= 'CuQPQ1WqIdSJDTIkDUlXjHpbcRao9lcKhQHflqGE8';
-    $this->twitterObj = new EpiTwitter($consumer_key, $consumer_secret, $token, $secret);
-    $this->twitterObjUnAuth = new EpiTwitter($consumer_key, $consumer_secret);
+    $this->twitterObj = new EpiTwitter($this->consumer_key, $this->consumer_secret, $this->token, $this->secret);
+    $this->twitterObjUnAuth = new EpiTwitter($this->consumer_key, $this->consumer_secret);
     $this->twitterObjBasic = new EpiTwitter();
     $this->twitterObjBadAuth = new EpiTwitter('foo', 'bar', 'foo', 'bar');
-    $this->id = '25451974';
-    $this->screenName = 'jmathai_test';
-    $this->twitterUsername = 'jmathai_test';
-    $this->twitterPassword = 'jmathai_test';
   }
 
   function testGetAuthenticateurl()
