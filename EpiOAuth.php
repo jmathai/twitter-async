@@ -258,6 +258,19 @@ class EpiOAuth
     return $retval;
   }
 
+  protected function isMultipart($params = null)
+  {
+    if($params)
+    {
+      foreach($params as $k => $v)
+      {
+        if(strncmp('@',$k,1) === 0)
+          return true;
+      }
+    }
+    return false;
+  }
+
   protected function prepareParameters($method = null, $url = null, $params = null)
   {
     if(empty($method) || empty($url))

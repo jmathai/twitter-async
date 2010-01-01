@@ -110,22 +110,8 @@ class EpiTwitter extends EpiOAuth
 
   private function request($method, $endpoint, $params = null)
   {
-    // parse the keys to determine if this should be multipart
-    $isMultipart = false;
-    if($params)
-    {
-      foreach($params as $k => $v)
-      {
-        if(strncmp('@',$k,1) === 0)
-        {
-          $isMultipart = true;
-          break;
-        }
-      }
-    }
-
     $url = $this->getUrl($this->getApiUrl($endpoint));
-    $resp= new EpiTwitterJson(call_user_func(array($this, 'httpRequest'), $method, $url, $params, $isMultipart), $this->debug);
+    $resp= new EpiTwitterJson(call_user_func(array($this, 'httpRequest'), $method, $url, $params, $this->isMultipart($params)), $this->debug);
     if(!$this->isAsynchronous)
       $resp->responseText;
 
@@ -143,7 +129,12 @@ class EpiTwitter extends EpiOAuth
     curl_setopt($ch, CURLOPT_TIMEOUT, $this->requestTimeout);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     if($method === 'POST' && $params !== null)
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+    {
+      if($this->isMultipart($params))
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+      else
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildHttpQueryRaw($params));
+    }
     if(!empty($username) && !empty($password))
       curl_setopt($ch, CURLOPT_USERPWD, "{$username}:{$password}");
 

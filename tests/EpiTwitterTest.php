@@ -109,36 +109,48 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue($k > 0, 'test did not properly loop over followers');
   }
 
-  function testPostStatusAndRetweet()
+  function testPostStatus()
   {
     $statusText = 'Testing really weird chars "~!@#$%^&*()-+\[]{}:\'>?<≈ç∂´ß©ƒ˙˙∫√√ƒƒ∂∂†¥∆∆∆ (time: ' . time() . ')';
     $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText));
     $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly');
-    
-    $statusText = 'Testing a random status (time: ' . time() . ')';
-    $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText));
-    $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly');
-    // get a public status and retweet it
-    $public = $this->twitterObjBasic->get_basic('/search.json', array('q' => 'hello'));
-    $resp = $this->twitterObj->post("/statuses/retweet/{$public->results[0]->id}.json");
-    $this->assertEquals('RT', substr($resp->text, 0, 2), 'Retweet response text did not start with RT');
-    // reply to it
-    $statusText = 'Testing a random status with reply to id (reply to: ' . $resp->id . ')';
-    $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText, 'in_reply_to_status_id' => "{$resp->id}"));
-    $this->assertEquals($resp->text, $statusText, 'The status with reply to id was not updated correctly');
-    
+    // starting with @ addresses gh-40 (basic)
+    $statusText = '@ (start with an at sign) at time of ' . time();
+    $resp = $this->twitterObjBasic->post_basic('/statuses/update.json', array('status' => $statusText), 'jmathai_test', 'jmathai_test');
+    var_dump($resp->response);
+    $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly when starting witn an @ sign');
+
     // __call
-    $statusText = 'Testing really weird chars "~!@#$%^&*()-+\[]{}:\'>?<≈ç∂´ß©ƒ˙˙∫√√ƒƒ∂∂†¥∆∆∆ (time: ' . time() . ')';
+    $statusText = '_call version of the randomness ∂´ßƒƒ∂∂†¥©ƒ˙˙∫√√"~!@#$%^&*()-+\[]{}:\'>?<≈ç∆∆∆ (time: ' . time() . ')';
     $resp = $this->twitterObj->post_statusesUpdate(array('status' => $statusText));
-    $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly');
+    $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly for __call');
     
     $statusText = 'Testing a random status (time: ' . time() . ')';
     $resp = $this->twitterObj->post_statusesUpdate(array('status' => $statusText));
-    $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly');
+    $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly_ for call w/o randomness');
     // reply to it
     $statusText = 'Testing a random status with reply to id (reply to: ' . $resp->id . ')';
     $resp = $this->twitterObj->post_statusesUpdate(array('status' => $statusText, 'in_reply_to_status_id' => "{$resp->id}"));
-    $this->assertEquals($resp->text, $statusText, 'The status with reply to id was not updated correctly');
+    $this->assertEquals($resp->text, $statusText, 'The status with reply to id was not updated correctly for __call');
+  }
+
+  function testRetweet()
+  {
+    srand((float) microtime() * 10000000);
+    $input = array("hello", "matrix", "twitter", "internet", "textbook");
+    $rand_key = array_rand($input);
+    $term = $input[$rand_key];
+    $statusText = 'This test is to check if the retweet functionality is working (time: ' . time() . ')';
+    $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText));
+    $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly prior to checking retweet');
+    // get a public status and retweet it
+    $public = $this->twitterObjBasic->get_basic('/search.json', array('q' => $term));
+    $resp = $this->twitterObj->post("/statuses/retweet/{$public->results[rand(0,5)]->id}.json");
+    $this->assertEquals('RT', substr($resp->text, 0, 2), 'Retweet response text did not start with RT');
+    // reply to it
+    $statusText = 'This is a random reply to a retweet test with a replyto status id (reply to: ' . $resp->id . ')';
+    $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText, 'in_reply_to_status_id' => "{$resp->id}"));
+    $this->assertEquals($resp->text, $statusText, 'The status with reply to id was not updated correctly when replying to an update');
   }
 
   function testPostStatusUnicode()
