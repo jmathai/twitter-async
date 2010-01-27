@@ -43,7 +43,8 @@ class EpiOAuth
   public function getAuthorizeUrl($token = null, $params = null)
   {
     $token = $token ? $token : $this->getRequestToken($params);
-    return $this->getUrl($this->authorizeUrl) . '?oauth_token=' . $token->oauth_token;
+    if (is_object($token)) $token = $token->oauth_token;
+    return $this->getUrl($this->authorizeUrl) . '?oauth_token=' . $token;
   }
 
   // DEPRECATED in favor of getAuthorizeUrl()
@@ -369,7 +370,7 @@ class EpiOAuthResponse
       $this->$k = $v;
     }
 
-    return $result[$name];
+    return isset($result[$name]) ? $result[$name] : null;
   }
 
   public function __toString()
