@@ -86,6 +86,9 @@ class EpiTwitter extends EpiOAuth
     // calls which do not have a consumerKey are assumed to not require authentication
     if($this->consumerKey === null)
     {
+      $username = null;
+      $password = null;
+
       if(!empty($params))
       {
         $username = array_shift($params);
@@ -205,7 +208,7 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
     $this->responseText = $this->__resp->data;
     $this->headers      = $this->__resp->headers;
     $this->code         = $this->__resp->code;
-    if($accessible[$name])
+    if(isset($accessible[$name]) && $accessible[$name])
       return $this->$name;
     elseif(($this->code < 200 || $this->code >= 400) && !isset($accessible[$name]))
       EpiTwitterException::raise($this->__resp, $this->debug);
@@ -222,7 +225,10 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
       }
     }
 
-    return $this->$name;
+    if (property_exists($this, $name)) {
+      return $this->$name;
+    }
+    return null;
   }
 
   public function __isset($name)
