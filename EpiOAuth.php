@@ -36,8 +36,9 @@ class EpiOAuth
   public function getAuthenticateUrl($token = null, $params = null)
   { 
     $token = $token ? $token : $this->getRequestToken($params);
+    if (is_object($token)) $token = $token->oauth_token;
     $addlParams = empty($params) ? '' : '&'.http_build_query($params, '', '&');
-    return $this->getUrl($this->authenticateUrl) . '?oauth_token=' . $token->oauth_token . $addlParams;
+    return $this->getUrl($this->authenticateUrl) . '?oauth_token=' . $token . $addlParams;
   }
 
   public function getAuthorizeUrl($token = null, $params = null)
@@ -353,6 +354,7 @@ class EpiOAuth
 class EpiOAuthResponse
 {
   private $__resp;
+  protected $debug = false;
 
   public function __construct($resp)
   {
@@ -388,11 +390,11 @@ class EpiOAuthException extends Exception
     switch($response->code)
     {
       case 400:
-        throw new EpiOAuthBadRequestException($message, $code);
+        throw new EpiOAuthBadRequestException($message, $response->code);
       case 401:
-        throw new EpiOAuthUnauthorizedException($message, $code);
+        throw new EpiOAuthUnauthorizedException($message, $response->code);
       default:
-        throw new EpiOAuthException($message, $code);
+        throw new EpiOAuthException($message, $response->code);
     }
   }
 }
