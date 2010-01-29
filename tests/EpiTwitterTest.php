@@ -117,7 +117,6 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     // starting with @ addresses gh-40 (basic)
     $statusText = '@ (start with an at sign) at time of ' . time();
     $resp = $this->twitterObjBasic->post_basic('/statuses/update.json', array('status' => $statusText), 'jmathai_test', 'jmathai_test');
-    var_dump($resp->response);
     $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly when starting witn an @ sign');
 
     // __call

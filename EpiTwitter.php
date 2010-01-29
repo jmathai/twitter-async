@@ -168,13 +168,17 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
   // Implementation of the IteratorAggregate::getIterator() to support foreach ($this as $...)
   public function getIterator ()
   {
-    return new ArrayIterator($this->__obj);
+    if ($this->__obj) {
+      return new ArrayIterator($this->__obj);
+    } else {
+      return new ArrayIterator($this->response);
+    }
   }
 
   // Implementation of Countable::count() to support count($this)
   public function count ()
   {
-    return count($this->__obj);
+    return count($this->response);
   }
   
   // Next four functions are to support ArrayAccess interface
