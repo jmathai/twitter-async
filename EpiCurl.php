@@ -149,7 +149,7 @@ class EpiCurlManager
   function __get($name)
   {
     $responses = $this->epiCurl->getResult($this->key);
-    return $responses[$name];
+    return isset($responses[$name]) ? $responses[$name] : null;
   }
 
   function __isset($name)
