@@ -235,6 +235,12 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(is_array($resp->response['trends']), "current trends is empty");
   }
 
+  function testGetTrendsAvailable()
+  {
+    $trends = $this->twitterObj->get('/trends/available.json');
+    $this->assertTrue($trends->response[0]['woeid'] > 0, 'woeid should be < 0');;
+  }
+
   function testBasicAuth()
   {
     $resp = $this->twitterObjBasic->get_basic('/account/verify_credentials.json', null, $this->twitterUsername, $this->twitterPassword);
