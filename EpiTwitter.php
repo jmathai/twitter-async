@@ -267,7 +267,7 @@ class EpiTwitterException extends Exception
       case 502:
         throw new EpiTwitterBadGatewayException($message, $response->code);
       case 503:
-        throw new EpiTwitterServerUnavailableException($message, $response->code);
+        throw new EpiTwitterServiceUnavailableException($message, $response->code);
       default:
         throw new EpiTwitterException($message, $response->code);
     }
@@ -281,4 +281,4 @@ class EpiTwitterNotAcceptableException extends EpiTwitterException{}
 class EpiTwitterEnhanceYourCalmException extends EpiTwitterException{}
 class EpiTwitterInternalServerException extends EpiTwitterException{}
 class EpiTwitterBadGatewayException extends EpiTwitterException{}
-class EpiTwitterServerUnavailableException extends EpiTwitterException{}
+class EpiTwitterServiceUnavailableException extends EpiTwitterException{}
