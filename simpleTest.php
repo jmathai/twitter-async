@@ -20,7 +20,7 @@ $twitterObjUnAuth = new EpiTwitter($consumer_key, $consumer_secret);
 <hr>
 
 <h2>Generate the authorization link</h2>
-<a href="<?php echo $twitterObjUnAuth->getAuthenticateUrl(); ?>">Authorization URL</a>
+<?php echo $twitterObjUnAuth->getAuthenticateUrl(); ?>
 
 <hr>
 
