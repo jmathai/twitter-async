@@ -116,7 +116,7 @@ class EpiTwitter extends EpiOAuth
     $url = $this->getUrl($this->getApiUrl($endpoint));
     $resp= new EpiTwitterJson(call_user_func(array($this, 'httpRequest'), $method, $url, $params, $this->isMultipart($params)), $this->debug);
     if(!$this->isAsynchronous)
-      $resp->responseText;
+      $resp->response;
 
     return $resp;
   }
@@ -143,7 +143,7 @@ class EpiTwitter extends EpiOAuth
 
     $resp = new EpiTwitterJson(EpiCurl::getInstance()->addCurl($ch), $this->debug);
     if(!$this->isAsynchronous)
-      $resp->responseText;
+      $resp->response;
 
     return $resp;
   }
