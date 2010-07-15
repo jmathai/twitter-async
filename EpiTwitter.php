@@ -258,6 +258,16 @@ class EpiTwitterException extends Exception
         throw new EpiTwitterForbiddenException($message, $response->code);
       case 404:
         throw new EpiTwitterNotFoundException($message, $response->code);
+      case 406:
+        throw new EpiTwitterNotAcceptableException($message, $response->code);
+      case 420:
+        throw new EpiTwitterEnhanceYourCalmException($message, $response->code);
+      case 500:
+        throw new EpiTwitterInternalServerException($message, $response->code);
+      case 502:
+        throw new EpiTwitterBadGatewayException($message, $response->code);
+      case 503:
+        throw new EpiTwitterServiceUnavailableException($message, $response->code);
       default:
         throw new EpiTwitterException($message, $response->code);
     }
@@ -267,3 +277,8 @@ class EpiTwitterBadRequestException extends EpiTwitterException{}
 class EpiTwitterNotAuthorizedException extends EpiTwitterException{}
 class EpiTwitterForbiddenException extends EpiTwitterException{}
 class EpiTwitterNotFoundException extends EpiTwitterException{}
+class EpiTwitterNotAcceptableException extends EpiTwitterException{}
+class EpiTwitterEnhanceYourCalmException extends EpiTwitterException{}
+class EpiTwitterInternalServerException extends EpiTwitterException{}
+class EpiTwitterBadGatewayException extends EpiTwitterException{}
+class EpiTwitterServiceUnavailableException extends EpiTwitterException{}
