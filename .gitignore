@@ -1,0 +1,14 @@
+# Backup and Swap Files
+.*.sw?
+*.bak
+*~
+
+# Windows Metadata Files
+Desktop.ini
+Thumbs.db
+
+# Mac OS X Metadata Files
+.DS_Store
+__MACOSX
+
+# Project Specific
