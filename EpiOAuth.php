@@ -11,6 +11,7 @@ class EpiOAuth
   protected $consumerSecret;
   protected $token;
   protected $tokenSecret;
+  protected $callback;
   protected $signatureMethod;
   protected $debug = false;
   protected $useSSL = false;
@@ -60,6 +61,10 @@ class EpiOAuth
 
   public function getRequestToken($params = null)
   {
+    if (isset($this->callback) && !isset($params['oauth_callback']))
+    {
+      $params['oauth_callback'] = $this->callback;
+    }
     $resp = $this->httpRequest('POST', $this->getUrl($this->requestTokenUrl), $params);
     return new EpiOAuthResponse($resp);
   }
@@ -113,6 +118,11 @@ class EpiOAuth
     $this->token = $token;
     $this->tokenSecret = $secret;
   } 
+
+  public function setCallback($callback = null)
+  {
+    $this->callback = $callback;
+  }
 
   public function useSSL($use = false)
   {
