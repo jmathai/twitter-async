@@ -29,6 +29,10 @@ class EpiOAuth
 
   public function getAccessToken($params = null)
   {
+    if (isset($_GET['oauth_verifier']) && !isset($params['oauth_verifier']))
+    {
+      $params['oauth_verifier'] = $_GET['oauth_verifier'];
+    }
     $resp = $this->httpRequest('POST', $this->getUrl($this->accessTokenUrl), $params);
     return new EpiOAuthResponse($resp);
   }
