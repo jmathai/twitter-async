@@ -23,6 +23,5 @@ Test sequencing diagram of api calls
     $cred->responseText;
   }
 
-  $sequence = EpiCurl::getSequence();
-  echo $sequence->renderAscii();
+  echo EpiCurl::getSequence()->renderAscii();
 ?>
