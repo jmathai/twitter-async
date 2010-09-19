@@ -116,7 +116,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly');
     // starting with @ addresses gh-40 (basic)
     $statusText = '@ (start with an at sign) at time of ' . time();
-    $resp = $this->twitterObjBasic->post_basic('/statuses/update.json', array('status' => $statusText), 'jmathai_test', 'jmathai_test');
+    $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText), 'jmathai_test', 'jmathai_test');
     $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly when starting witn an @ sign');
 
     // __call
@@ -143,7 +143,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText));
     $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly prior to checking retweet');
     // get a public status and retweet it
-    $public = $this->twitterObjBasic->get_basic('/search.json', array('q' => $term));
+    $public = $this->twitterObj->get('/search.json', array('q' => $term));
     $resp = $this->twitterObj->post("/statuses/retweet/{$public->results[rand(0,5)]->id}.json");
     $this->assertEquals('RT', substr($resp->text, 0, 2), 'Retweet response text did not start with RT');
     // reply to it
@@ -165,10 +165,10 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
 
   function testDirectMessage()
   {
-    $resp = $this->twitterObj->post('/direct_messages/new.json',  array ( 'user' => $this->screenName, 'text' => "@username that's dirt cheap man, good looking out. I shall buy soon.You still play Halo at all?"));
+    $resp = $this->twitterObj->post('/direct_messages/new.json',  array ( 'user' => $this->screenName, 'text' => "@username that's dirt cheap man, good looking out. I shall buy soon.You still play Halo at all? " . time()));
     $this->assertTrue(!empty($resp->response['id']), "response id is empty");
     // __call
-    $resp = $this->twitterObj->post_direct_messagesNew( array ( 'user' => $this->screenName, 'text' => "@username that's dirt cheap man, good looking out. I shall buy soon.You still play Halo at all?"));
+    $resp = $this->twitterObj->post_direct_messagesNew( array ( 'user' => $this->screenName, 'text' => "@username that's dirt cheap man, good looking out. I shall buy soon.You still play Halo at all? " . time()));
     $this->assertTrue(!empty($resp->response['id']), "response id is empty");
   }
 
@@ -203,35 +203,35 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
 
   function testSearch()
   {
-    $resp = $this->twitterObjBasic->get_basic('/search.json', array('q' => 'hello'));
+    $resp = $this->twitterObj->get('/search.json', array('q' => 'hello'));
     $this->assertTrue(is_array($resp->response['results']));
     $this->assertTrue(!empty($resp->results[0]->text), "search response is not an array {$resp->results[0]->text}");
-    $resp = $this->twitterObjBasic->get_basic('/search.json', array('geocode' => '40.757929,-73.985506,25km', 'rpp' => 10));
+    $resp = $this->twitterObj->get('/search.json', array('geocode' => '40.757929,-73.985506,25km', 'rpp' => 10));
     $this->assertTrue(is_array($resp->response['results']));
     $this->assertTrue(!empty($resp->results[0]->text), "search response is not an array {$resp->results[0]->text}");
     // __call
-    $resp = $this->twitterObjBasic->get_search(array('q' => 'hello'));
+    $resp = $this->twitterObj->get_search(array('q' => 'hello'));
     $this->assertTrue(is_array($resp->response['results']));
     $this->assertTrue(!empty($resp->results[0]->text), "search response is not an array {$resp->results[0]->text}");
-    $resp = $this->twitterObjBasic->get_search(array('geocode' => '40.757929,-73.985506,25km', 'rpp' => 10));
+    $resp = $this->twitterObj->get_search(array('geocode' => '40.757929,-73.985506,25km', 'rpp' => 10));
     $this->assertTrue(is_array($resp->response['results']));
     $this->assertTrue(!empty($resp->results[0]->text), "search response is not an array {$resp->results[0]->text}");
   }
 
   function testTrends()
   {
-    $resp = $this->twitterObjBasic->get('/trends.json');
+    $resp = $this->twitterObj->get('/trends.json');
     $this->assertTrue(is_array($resp->response['trends']), "trends is empty");
     $this->assertTrue(!empty($resp->trends[0]->name), "current trends is not an array " . $resp->trends[0]->name);
 
-    $resp = $this->twitterObjBasic->get('/trends/current.json');
+    $resp = $this->twitterObj->get('/trends/current.json');
     $this->assertTrue(is_array($resp->response['trends']), "current trends is empty");
     // __call
-    $resp = $this->twitterObjBasic->get_trends();
+    $resp = $this->twitterObj->get_trends();
     $this->assertTrue(is_array($resp->response['trends']), "trends is empty");
     $this->assertTrue(!empty($resp->trends[0]->name), "current trends is not an array " . $resp->trends[0]->name);
 
-    $resp = $this->twitterObjBasic->get_trendsCurrent();
+    $resp = $this->twitterObj->get_trendsCurrent();
     $this->assertTrue(is_array($resp->response['trends']), "current trends is empty");
   }
 
@@ -239,25 +239,6 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
   {
     $trends = $this->twitterObj->get('/trends/available.json');
     $this->assertTrue($trends->response[0]['woeid'] > 0, 'woeid should be < 0');;
-  }
-
-  function testBasicAuth()
-  {
-    $resp = $this->twitterObjBasic->get_basic('/account/verify_credentials.json', null, $this->twitterUsername, $this->twitterPassword);
-    $this->assertEquals($resp->screen_name, $this->screenName, "Screenname from response is not {$this->screenName} when using get_basic");
-    $status = 'Basic auth status update ' . time();
-    $resp = $this->twitterObjBasic->post_basic('/statuses/update.json', array('status' => $status), $this->twitterUsername, $this->twitterPassword);
-    $this->assertEquals(200, $resp->code, "Status update response code was not 200");
-    $newStatus = $this->twitterObjBasic->get_basic('/statuses/show.json', array('id' => $resp->id));
-    $this->assertEquals($status, $newStatus->text, "Updated status is not what it should be");
-    // testing __call
-    $resp = $this->twitterObjBasic->get_accountVerify_credentials(null, $this->twitterUsername, $this->twitterPassword);
-    $this->assertEquals($resp->screen_name, $this->screenName, "Screenname from response is not {$this->screenName}");
-    $status = 'Basic auth status update ' . time();
-    $resp = $this->twitterObjBasic->post_statusesUpdate(array('status' => $status), $this->twitterUsername, $this->twitterPassword);
-    $this->assertEquals(200, $resp->code, "Status update response code was not 200");
-    $newStatus = $this->twitterObjBasic->get_statusesShow(array('id' => $resp->id));
-    $this->assertEquals($status, $newStatus->text, "Updated status is not what it should be");
   }
 
   function testSSl()
@@ -294,7 +275,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $resp = $this->twitterObj->get("/favorites/{$this->screenName}.json");
     $this->assertEquals(count($resp), 0, "Favorites should be length 0");
     // create fav
-    $public = $this->twitterObjBasic->get_basic('/search.json', array('q' => 'hello'));
+    $public = $this->twitterObj->get('/search.json', array('q' => 'hello'));
     $resp = $this->twitterObj->post("/favorites/create/{$public->results[0]->id}.json");
     $this->assertEquals($resp->id, $public->results[0]->id, "Created fav should have same id");
     // destroy fav
@@ -436,7 +417,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(!empty($twitterFriends[0]), 'First result in get statuses friends is empty');;
   }
 
-  function testCreateAndDeleteList()
+  /*function testCreateAndDeleteList()
   {
     // create the list
     $name = 'test list ' . rand(0,1000);
@@ -448,7 +429,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     // verify the delete worked
     $respGet = $this->twitterObj->get("/{$this->twitterUsername}/lists/{$resp->id}.json");
     $this->assertEquals($respGet->code, '404', "Getting the previously deleted list should return 404 and not {$respGet->code}");
-  }
+  }*/
 
   function testDestructor()
   {
