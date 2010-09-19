@@ -119,7 +119,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly');
     // starting with @ addresses gh-40 (basic)
     $statusText = '@ (start with an at sign) at time of ' . time();
-    $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText), 'jmathai_test', 'jmathai_test');
+    $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText));
     $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly when starting witn an @ sign');
 
     // __call
@@ -157,21 +157,21 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
 
   function testPostStatusUnicode()
   {
-    $statusText = 'Testing a random status with unicode בוקר טוב (' . time() . ')';
+    $statusText = rand(0,1000) . ' Testing a random status with unicode בוקר טוב (' . time() . ')';
     $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText));
     $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly');
     // __call
-    $statusText = 'Testing a random status with unicode בוקר טוב (' . time() . ')';
+    $statusText = rand(0,1000) . ' Testing a random status with unicode בוקר טוב (' . time() . ')';
     $resp = $this->twitterObj->post_statusesUpdate(array('status' => $statusText));
     $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly');
   }
 
   function testDirectMessage()
   {
-    $resp = $this->twitterObj->post('/direct_messages/new.json',  array ( 'user' => $this->screenName, 'text' => "@username that's dirt cheap man, good looking out. I shall buy soon.You still play Halo at all? " . time()));
+    $resp = $this->twitterObj->post('/direct_messages/new.json',  array ( 'user' => $this->screenName, 'text' => "@username that's dirt cheap man, good looking out. I shall buy soon.You still play Halo at all? " . rand(0,1000)));
     $this->assertTrue(!empty($resp->response['id']), "response id is empty");
     // __call
-    $resp = $this->twitterObj->post_direct_messagesNew( array ( 'user' => $this->screenName, 'text' => "@username that's dirt cheap man, good looking out. I shall buy soon.You still play Halo at all? " . time()));
+    $resp = $this->twitterObj->post_direct_messagesNew( array ( 'user' => $this->screenName, 'text' => "@username that's dirt cheap man, good looking out. I shall buy soon.You still play Halo at all? " . rand(0,1000)));
     $this->assertTrue(!empty($resp->response['id']), "response id is empty");
   }
 
