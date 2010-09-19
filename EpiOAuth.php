@@ -193,12 +193,20 @@ class EpiOAuth
     return $this->signString($signatureBaseString);
   }
 
+  protected function executeCurl($ch)
+  {
+    if($this->isAsynchronous)
+      return $this->curl->addCurl($ch);
+    else
+      return $this->curl->addEasyCurl($ch);
+  }
+
   protected function httpDelete($url, $params) {
       $this->addDefaultHeaders($url, $params['oauth']);
       $ch = $this->curlInit($url);
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
       curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildHttpQueryRaw($params['request']));
-      $resp = $this->curl->addCurl($ch);
+      $resp = $this->executeCurl($ch);
       $this->emptyHeaders();
       return $resp;
   }
@@ -216,7 +224,7 @@ class EpiOAuth
     }
     $this->addDefaultHeaders($url, $params['oauth']);
     $ch = $this->curlInit($url);
-    $resp  = $this->curl->addCurl($ch);
+    $resp = $this->executeCurl($ch);
     $this->emptyHeaders();
 
     return $resp;
@@ -233,7 +241,7 @@ class EpiOAuth
       curl_setopt($ch, CURLOPT_POSTFIELDS, $params['request']);
     else
       curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildHttpQueryRaw($params['request']));
-    $resp  = $this->curl->addCurl($ch);
+    $resp = $this->executeCurl($ch);
     $this->emptyHeaders();
 
     return $resp;

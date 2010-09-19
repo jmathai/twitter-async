@@ -247,7 +247,6 @@ class EpiTwitterException extends Exception
   public static function raise($response, $debug)
   {
     $message = $response->data;
- 
     switch($response->code)
     {
       case 400:

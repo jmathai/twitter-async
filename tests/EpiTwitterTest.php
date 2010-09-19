@@ -20,8 +20,11 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     // key and secret for a test app (don't really care if this is public)
     $this->twitterObj = new EpiTwitter($this->consumer_key, $this->consumer_secret, $this->token, $this->secret);
     $this->twitterObjUnAuth = new EpiTwitter($this->consumer_key, $this->consumer_secret);
-    $this->twitterObjBasic = new EpiTwitter();
     $this->twitterObjBadAuth = new EpiTwitter('foo', 'bar', 'foo', 'bar');
+    // these 3 lines turn on asynchronous calls
+    $this->twitterObj->useAsynchronous(true);
+    $this->twitterObjUnAuth->useAsynchronous(true);
+    $this->twitterObjBadAuth->useAsynchronous(true);
   }
 
   function testGetAuthenticateurl()
