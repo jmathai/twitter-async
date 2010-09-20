@@ -157,11 +157,11 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
 
   function testPostStatusUnicode()
   {
-    $statusText = rand(0,1000) . ' Testing a random status with unicode בוקר טוב (' . time() . ')';
+    $statusText = rand(0,1000) . ' Testing a random status with unicode בוקר טוב áéíóúção (' . time() . ')';
     $resp = $this->twitterObj->post('/statuses/update.json', array('status' => $statusText));
     $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly');
     // __call
-    $statusText = rand(0,1000) . ' Testing a random status with unicode בוקר טוב (' . time() . ')';
+    $statusText = rand(0,1000) . ' Testing a random status with unicode בוקר טוב áéíóúção (' . time() . ')';
     $resp = $this->twitterObj->post_statusesUpdate(array('status' => $statusText));
     $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly');
   }

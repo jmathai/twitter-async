@@ -128,7 +128,6 @@ class EpiCurl
       $val = preg_replace('/^\W+/','',substr($_header, $colonPos));
       $this->responses[$this->getKey($ch)]['headers'][$key] = $val;
     }
-    $this->storeResponse($ch);
     return strlen($header);
   }
 
@@ -140,22 +139,22 @@ class EpiCurl
     }
   }
 
-  private function storeResponse($ch, $isAsynchronous = true)
+  private function storeResponse($done, $isAsynchronous = true)
   {
-    $key = $this->getKey($ch['handle']);
-    $this->stopTimer($key, $ch);
+    $key = $this->getKey($done['handle']);
+    $this->stopTimer($key, $done);
     if($isAsynchronous)
-      $this->responses[$key]['data'] = curl_multi_getcontent($ch['handle']);
+      $this->responses[$key]['data'] = curl_multi_getcontent($done['handle']);
     else
-      $this->responses[$key]['data'] = curl_exec($ch['handle']);
+      $this->responses[$key]['data'] = curl_exec($done['handle']);
 
     foreach($this->properties as $name => $const)
     {
-      $this->responses[$key][$name] = curl_getinfo($ch['handle'], $const);
+      $this->responses[$key][$name] = curl_getinfo($done['handle'], $const);
     }
     if($isAsynchronous)
-      curl_multi_remove_handle($this->mc, $ch['handle']);
-    curl_close($ch['handle']);
+      curl_multi_remove_handle($this->mc, $done['handle']);
+    curl_close($done['handle']);
   }
 
   private function startTimer($key)
