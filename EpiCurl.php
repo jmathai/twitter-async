@@ -13,6 +13,7 @@ class EpiCurl
   private $requests = array();
   private $responses = array();
   private $properties = array();
+  private static $timers = array();
 
   function __construct()
   {
@@ -31,6 +32,17 @@ class EpiCurl
       );
   }
 
+  public function addEasyCurl($ch)
+  {
+    $key = $this->getKey($ch);
+    $this->requests[$key] = $ch;
+    curl_setopt($ch, CURLOPT_HEADERFUNCTION, array($this, 'headerCallback'));
+    $done = array('handle' => $ch);
+    $this->storeResponse($done, false);
+    $this->startTimer($key);
+    return new EpiCurlManager($key);
+  }
+
   public function addCurl($ch)
   {
     $key = $this->getKey($ch);
@@ -38,6 +50,7 @@ class EpiCurl
     curl_setopt($ch, CURLOPT_HEADERFUNCTION, array($this, 'headerCallback'));
 
     $code = curl_multi_add_handle($this->mc, $ch);
+    $this->startTimer($key);
     
     // (1)
     if($code === CURLM_OK || $code === CURLM_CALL_MULTI_PERFORM)
@@ -66,15 +79,15 @@ class EpiCurl
       $innerSleepInt = $outerSleepInt = 1;
       while($this->running && ($this->execStatus == CURLM_OK || $this->execStatus == CURLM_CALL_MULTI_PERFORM))
       {
-        usleep($outerSleepInt);
-        $outerSleepInt = max(1, ($outerSleepInt*$this->sleepIncrement));
+        usleep(intval($outerSleepInt));
+        $outerSleepInt = intval(max(1, ($outerSleepInt*$this->sleepIncrement)));
         $ms=curl_multi_select($this->mc, 0);
         if($ms > 0)
         {
           do{
             $this->execStatus = curl_multi_exec($this->mc, $this->running);
-            usleep($innerSleepInt);
-            $innerSleepInt = max(1, ($innerSleepInt*$this->sleepIncrement));
+            usleep(intval($innerSleepInt));
+            $innerSleepInt = intval(max(1, ($innerSleepInt*$this->sleepIncrement)));
           }while($this->execStatus==CURLM_CALL_MULTI_PERFORM);
           $innerSleepInt = 1;
         }
@@ -88,6 +101,16 @@ class EpiCurl
       return null;
     }
     return false;
+  }
+
+  public static function getSequence()
+  {
+    return new EpiSequence(self::$timers);
+  }
+
+  public static function getTimers()
+  {
+    return self::$timers;
   }
 
   private function getKey($ch)
@@ -112,15 +135,39 @@ class EpiCurl
   {
     while($done = curl_multi_info_read($this->mc))
     {
-      $key = (string)$done['handle'];
-      $this->responses[$key]['data'] = curl_multi_getcontent($done['handle']);
-      foreach($this->properties as $name => $const)
-      {
-        $this->responses[$key][$name] = curl_getinfo($done['handle'], $const);
-      }
-      curl_multi_remove_handle($this->mc, $done['handle']);
-      curl_close($done['handle']);
+      $this->storeResponse($done);
     }
+  }
+
+  private function storeResponse($done, $isAsynchronous = true)
+  {
+    $key = $this->getKey($done['handle']);
+    $this->stopTimer($key, $done);
+    if($isAsynchronous)
+      $this->responses[$key]['data'] = curl_multi_getcontent($done['handle']);
+    else
+      $this->responses[$key]['data'] = curl_exec($done['handle']);
+
+    foreach($this->properties as $name => $const)
+    {
+      $this->responses[$key][$name] = curl_getinfo($done['handle'], $const);
+    }
+    if($isAsynchronous)
+      curl_multi_remove_handle($this->mc, $done['handle']);
+    curl_close($done['handle']);
+  }
+
+  private function startTimer($key)
+  {
+    self::$timers[$key]['start'] = microtime(true);
+  }
+
+  private function stopTimer($key, $done)
+  {
+      self::$timers[$key]['end'] = microtime(true);
+      self::$timers[$key]['api'] = curl_getinfo($done['handle'], CURLINFO_EFFECTIVE_URL);
+      self::$timers[$key]['time'] = curl_getinfo($done['handle'], CURLINFO_TOTAL_TIME);
+      self::$timers[$key]['code'] = curl_getinfo($done['handle'], CURLINFO_HTTP_CODE);
   }
 
   static function getInstance()
@@ -140,19 +187,19 @@ class EpiCurlManager
   private $key;
   private $epiCurl;
 
-  function __construct($key)
+  public function __construct($key)
   {
     $this->key = $key;
     $this->epiCurl = EpiCurl::getInstance();
   }
 
-  function __get($name)
+  public function __get($name)
   {
     $responses = $this->epiCurl->getResult($this->key);
     return isset($responses[$name]) ? $responses[$name] : null;
   }
 
-  function __isset($name)
+  public function __isset($name)
   {
     $val = self::__get($name);
     return empty($val);

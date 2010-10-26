@@ -8,11 +8,11 @@ Authors
    * dingram
 
 Documentation:
-   * http://wiki.github.com/jmathai/twitter-async
+   * http://www.jaisenmathai.com/articles/twitter-async-documentation.html
 
 Blogs
-   * http://www.jaisenmathai.com/blog/2009/04/30/letting-your-users-sign-in-with-twitter-with-oauth/
-   * http://www.jaisenmathai.com/blog/2009/03/31/how-to-quickly-integrate-with-twitters-oauth-api-using-php/
+   * http://www.jaisenmathai.com/articles/twitter-php-sign-in.html
+   * http://www.jaisenmathai.com/articles/twitter-php-oauth.html
    * http://www.1stwebdesigner.com/tutorials/twitter-app-oauth-php/
 
 Live Examples
