@@ -14,6 +14,7 @@ class EpiOAuth
   protected $signatureMethod;
   protected $debug = false;
   protected $useSSL = false;
+  protected $followLocation = false;
   protected $headers = array();
   protected $userAgent = 'EpiOAuth (http://github.com/jmathai/twitter-async/tree/)';
   protected $connectionTimeout = 5;
@@ -96,6 +97,11 @@ class EpiOAuth
     $this->debug = (bool)$bool;
   }
 
+  public function setFollowLocation($bool)
+  {
+    $this->followLocation = (bool)$bool;
+  }
+
   public function setTimeout($requestTimeout = null, $connectionTimeout = null)
   {
     if($requestTimeout !== null)
@@ -108,7 +114,7 @@ class EpiOAuth
   {
     $this->token = $token;
     $this->tokenSecret = $secret;
-  } 
+  }
 
   public function useSSL($use = false)
   {
@@ -145,8 +151,9 @@ class EpiOAuth
     curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers); 
     curl_setopt($ch, CURLOPT_TIMEOUT, $this->requestTimeout);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectionTimeout);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_ENCODING, '');
+    if($this->followLocation)
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     if(isset($_SERVER ['SERVER_ADDR']) && !empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] != '127.0.0.1')
       curl_setopt($ch, CURLOPT_INTERFACE, $_SERVER ['SERVER_ADDR']);
 
