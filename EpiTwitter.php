@@ -14,11 +14,11 @@ class EpiTwitter extends EpiOAuth
   const EPITWITTER_SIGNATURE_METHOD = 'HMAC-SHA1';
   const EPITWITTER_AUTH_OAUTH = 'oauth';
   const EPITWITTER_AUTH_BASIC = 'basic';
-  protected $requestTokenUrl= 'http://twitter.com/oauth/request_token';
-  protected $accessTokenUrl = 'http://twitter.com/oauth/access_token';
-  protected $authorizeUrl   = 'http://twitter.com/oauth/authorize';
-  protected $authenticateUrl= 'http://twitter.com/oauth/authenticate';
-  protected $apiUrl         = 'http://twitter.com';
+  protected $requestTokenUrl= 'https://api.twitter.com/oauth/request_token';
+  protected $accessTokenUrl = 'https://api.twitter.com/oauth/access_token';
+  protected $authorizeUrl   = 'https://api.twitter.com/oauth/authorize';
+  protected $authenticateUrl= 'https://api.twitter.com/oauth/authenticate';
+  protected $apiUrl         = 'http://api.twitter.com';
   protected $apiVersionedUrl= 'http://api.twitter.com';
   protected $searchUrl      = 'http://search.twitter.com';
   protected $userAgent      = 'EpiTwitter (http://github.com/jmathai/twitter-async/tree/)';

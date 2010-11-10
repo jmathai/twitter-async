@@ -11,6 +11,7 @@ class EpiOAuth
   protected $consumerSecret;
   protected $token;
   protected $tokenSecret;
+  protected $callback;
   protected $signatureMethod;
   protected $debug = false;
   protected $useSSL = false;
@@ -30,6 +31,10 @@ class EpiOAuth
 
   public function getAccessToken($params = null)
   {
+    if (isset($_GET['oauth_verifier']) && !isset($params['oauth_verifier']))
+    {
+      $params['oauth_verifier'] = $_GET['oauth_verifier'];
+    }
     $resp = $this->httpRequest('POST', $this->getUrl($this->accessTokenUrl), $params);
     return new EpiOAuthResponse($resp);
   }
@@ -57,6 +62,10 @@ class EpiOAuth
 
   public function getRequestToken($params = null)
   {
+    if (isset($this->callback) && !isset($params['oauth_callback']))
+    {
+      $params['oauth_callback'] = $this->callback;
+    }
     $resp = $this->httpRequest('POST', $this->getUrl($this->requestTokenUrl), $params);
     return new EpiOAuthResponse($resp);
   }
@@ -116,6 +125,11 @@ class EpiOAuth
     $this->tokenSecret = $secret;
   }
 
+  public function setCallback($callback = null)
+  {
+    $this->callback = $callback;
+  }
+
   public function useSSL($use = false)
   {
     $this->useSSL = (bool)$use;
@@ -156,12 +170,8 @@ class EpiOAuth
       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     if(isset($_SERVER ['SERVER_ADDR']) && !empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] != '127.0.0.1')
       curl_setopt($ch, CURLOPT_INTERFACE, $_SERVER ['SERVER_ADDR']);
-
-    if($this->useSSL === true)
-    {
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    }
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     return $ch;
   }
 
