@@ -48,7 +48,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $resp = $this->twitterObjUnAuth->getRequestToken();
     $this->assertTrue(strlen($resp->oauth_token) > 0, "oauth_token is longer than 0");
     $this->assertTrue(strlen($resp->oauth_token_secret) > 0, "oauth_token_secret is longer than 0");
-    $this->assertTrue(strlen($resp->oauth_callback_confirmed) == 0, "oauth_callback is not = true");
+    $this->assertTrue($resp->oauth_callback_confirmed == 'true', "oauth_callback is not = true");
 
     $resp = $this->twitterObjUnAuth->getRequestToken(array('oauth_callback' => urlencode('http://www.yahoo.com')));
     $this->assertTrue(strlen($resp->oauth_token) > 0, "oauth_token is longer than 0");
@@ -147,7 +147,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly prior to checking retweet');
     // get a public status and retweet it
     $public = $this->twitterObj->get('/search.json', array('q' => $term));
-    $resp = $this->twitterObj->post("/statuses/retweet/{$public->results[rand(0,5)]->id}.json");
+    $resp = $this->twitterObj->post("/statuses/retweet/{$public->results[rand(0,5)]->id_str}.json");
     $this->assertEquals('RT', substr($resp->text, 0, 2), 'Retweet response text did not start with RT');
     // reply to it
     $statusText = 'This is a random reply to a retweet test with a replyto status id (reply to: ' . $resp->id . ')';
@@ -279,13 +279,21 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(count($resp), 0, "Favorites should be length 0");
     // create fav
     $public = $this->twitterObj->get('/search.json', array('q' => 'hello'));
-    $resp = $this->twitterObj->post("/favorites/create/{$public->results[0]->id}.json");
-    $this->assertEquals($resp->id, $public->results[0]->id, "Created fav should have same id");
+    $resp = $this->twitterObj->post("/favorites/create/{$public->results[0]->id_str}.json");
+    $this->assertEquals($resp->id_str, $public->results[0]->id_str, "Created fav should have same id");
     // destroy fav
-    $resp = $this->twitterObj->post("/favorites/destroy/{$public->results[0]->id}.json");
-    $this->assertEquals($resp->id, $public->results[0]->id, "Destroy fav should have same id");
+    $resp = $this->twitterObj->post("/favorites/destroy/{$public->results[0]->id_str}.json");
+    $this->assertEquals($resp->id_str, $public->results[0]->id_str, "Destroy fav should have same id");
     $resp = $this->twitterObj->get("/favorites/{$this->screenName}.json");
     $this->assertEquals(count($resp), 0, "Favorites should be length 0 after destroying");
+    
+    // clean up
+    $resp = $this->twitterObj->get("/favorites/{$this->screenName}.json");
+    foreach($resp as $r)
+    {
+      $del = $this->twitterObj->post("/favorites/destroy/{$r->id_str}.json");
+      $del->response;
+    }
   }
 
   function testUpdateAvatar()
@@ -345,7 +353,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $exists = $this->twitterObj->get_friendshipsExists(array('user_a' => $this->screenName, 'user_b' => 'pbct_test'));
     $this->assertFalse($exists->response, 'Friendship already exists and should not for create test');
     $create = $this->twitterObj->post_friendshipsCreate(array('id' => 'pbct_test'));
-    $this->assertTrue($create->id > 0, 'ID is empty from create friendship call');
+    $this->assertTrue($create->id_str > 0, 'ID is empty from create friendship call');
   }
 
   function testDestroyFriendship()
@@ -362,7 +370,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $exists = $this->twitterObj->get('/friendships/exists.json', array('user_a' => $this->screenName, 'user_b' => 'pbct_test'));
     $this->assertTrue($exists->response, 'Friendship does not exist to be destroyed');
     $destroy = $this->twitterObj->post('/friendships/destroy.json', array('id' => 'pbct_test'));
-    $this->assertTrue($destroy->id > 0, 'ID is empty from destroy friendship call');
+    $this->assertTrue($destroy->id_str > 0, 'ID is empty from destroy friendship call');
 
     //__call
     // check if friendship exists
@@ -377,7 +385,7 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $exists = $this->twitterObj->get_friendshipsExists(array('user_a' => $this->screenName, 'user_b' => 'pbct_test'));
     $this->assertTrue($exists->response, 'Friendship does not exist to be destroyed');
     $destroy = $this->twitterObj->post_friendshipsDestroy(array('id' => 'pbct_test'));
-    $this->assertTrue($destroy->id > 0, 'ID is empty from destroy friendship call');
+    $this->assertTrue($destroy->id_str > 0, 'ID is empty from destroy friendship call');
   }
 
   function testGetFriendsIds()
