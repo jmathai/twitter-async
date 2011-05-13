@@ -168,7 +168,8 @@ class EpiOAuth
     curl_setopt($ch, CURLOPT_ENCODING, '');
     if($this->followLocation)
       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    if(isset($_SERVER ['SERVER_ADDR']) && !empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] != '127.0.0.1')
+    if(isset($_SERVER ['SERVER_ADDR']) && !empty($_SERVER['SERVER_ADDR']) &&
+      !preg_match('/^(|10\.127\.|192\.168\.|172\.(16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)\.)/', $_SERVER['SERVER_ADDR']))
       curl_setopt($ch, CURLOPT_INTERFACE, $_SERVER ['SERVER_ADDR']);
 
     // if the certificate exists then use it, else bypass ssl checks
