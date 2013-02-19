@@ -18,8 +18,7 @@ class EpiTwitter extends EpiOAuth
   protected $accessTokenUrl = 'https://api.twitter.com/oauth/access_token';
   protected $authorizeUrl   = 'https://api.twitter.com/oauth/authorize';
   protected $authenticateUrl= 'https://api.twitter.com/oauth/authenticate';
-  protected $apiUrl         = 'https://api.twitter.com/1.1';
-  protected $apiVersionedUrl= 'https://api.twitter.com';
+  protected $apiUrl         = 'https://api.twitter.com';
   protected $userAgent      = 'EpiTwitter (http://github.com/jmathai/twitter-async/tree/)';
   protected $apiVersion     = '1.1';
   protected $isAsynchronous = false;
@@ -102,10 +101,7 @@ class EpiTwitter extends EpiOAuth
 
   private function getApiUrl($endpoint)
   {
-    if (! empty($this->apiVersion))
-      return "{$this->apiVersionedUrl}/{$this->apiVersion}{$endpoint}";
-    else
-      return "{$this->apiUrl}{$endpoint}";
+    return "{$this->apiUrl}/{$this->apiVersion}{$endpoint}";
   }
 
   private function request($method, $endpoint, $params = null)
