@@ -111,7 +111,12 @@ class EpiTwitter extends EpiOAuth
 
   private function getApiUrl($endpoint)
   {
-    return "{$this->apiUrl}/{$this->apiVersion}{$endpoint}";
+    if ($this->apiVersion === '1' && preg_match('@^/search[./]?(?=(json|daily|current|weekly))@', $endpoint))
+    {
+      return $this->searchUrl.$endpoint;
+    }
+
+    return $this->apiUrl.'/'.$this->apiVersion.$endpoint;
   }
 
   private function request($method, $endpoint, $params = null)
