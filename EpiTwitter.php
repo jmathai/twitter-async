@@ -19,6 +19,7 @@ class EpiTwitter extends EpiOAuth
   protected $authorizeUrl   = 'https://api.twitter.com/oauth/authorize';
   protected $authenticateUrl= 'https://api.twitter.com/oauth/authenticate';
   protected $apiUrl         = 'http://api.twitter.com';
+	protected $mediaUrl       = 'https://upload.twitter.com';
   protected $userAgent      = 'EpiTwitter (http://github.com/jmathai/twitter-async/tree/)';
   protected $apiVersion     = '1';
   protected $isAsynchronous = false;
@@ -111,9 +112,12 @@ class EpiTwitter extends EpiOAuth
 
   private function getApiUrl($endpoint)
   {
-    if ($this->apiVersion === '1' && preg_match('@^/search[./]?(?=(json|daily|current|weekly))@', $endpoint))
+    if($this->apiVersion === '1')
     {
-      return $this->searchUrl.$endpoint;
+      if(strpos($endpoint,"with_media") > 0)
+        return "{$this->mediaUrl}/{$this->apiVersion}{$endpoint}";
+      elseif(preg_match('@^/search[./]?(?=(json|daily|current|weekly))@', $endpoint))
+        return $this->searchUrl.$endpoint;
     }
 
     return $this->apiUrl.'/'.$this->apiVersion.$endpoint;

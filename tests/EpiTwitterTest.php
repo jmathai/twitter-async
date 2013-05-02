@@ -167,6 +167,15 @@ class EpiTwitterTest extends PHPUnit_Framework_TestCase
     $this->assertEquals($resp->text, $statusText, 'The status was not updated correctly');
   }
 
+	function testPostStatusWithMedia()
+	{
+	  $file = dirname(__FILE__) . '/avatar_test_image.jpg';
+	  $statusText = 'Testing with image upload as media to status (time: ' . time() . ')';
+	  $resp = $this->twitterObj->post('/statuses/update_with_media.json', array('@media[]'  => "@{$offerImage};type=$imageType;filename={$offerImage}",
+	                       'status'   => $statusText));
+	  $this->assertEquals($resp->text, str_replace(array('<','>'),array('&lt;','&gt;'),$statusText), 'The status was not updated correctly for __call');
+	}
+
   function testDirectMessage()
   {
     $resp = $this->twitterObj->post('/direct_messages/new.json',  array ( 'user' => $this->screenName, 'text' => "@username that's dirt cheap man, good looking out. I shall buy soon.You still play Halo at all? " . rand(0,1000)));
