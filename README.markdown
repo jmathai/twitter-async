@@ -11,10 +11,10 @@ Twitter-async (PHP)
     var_dump($creds->response);
 
 ### Documentation:
-   * http://www.jaisenmathai.com/articles/twitter-async-documentation.html
+   * coming soon...
 
 ### Live Example
-   * http://www.jaisenmathai.com/sign_in_with_twitter/start.php
+   * coming soon...
 
 ### Blogs
    * http://www.jaisenmathai.com/articles/twitter-php-sign-in.html
