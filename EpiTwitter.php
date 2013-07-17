@@ -23,7 +23,7 @@ class EpiTwitter extends EpiOAuth
   protected $apiVersionedUrl= 'http://api.twitter.com';
   protected $searchUrl      = 'http://search.twitter.com';
   protected $userAgent      = 'EpiTwitter (http://github.com/jmathai/twitter-async/tree/)';
-  protected $apiVersion     = '1';
+  protected $apiVersion     = '1.1';
   protected $isAsynchronous = false;
 
   /* OAuth methods */
