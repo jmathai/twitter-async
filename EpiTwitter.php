@@ -81,7 +81,7 @@ class EpiTwitter extends EpiOAuth
     $this->setToken($oauthToken, $oauthTokenSecret);
   }
 
-  public function __call($name, $params = null/*, $username, $password*/)
+  public function __call($name, $params/*, $username, $password*/)
   {
     $parts  = explode('_', $name);
     $method = strtoupper(array_shift($parts));
