@@ -86,7 +86,7 @@ class EpiTwitter extends EpiOAuth
     $parts  = explode('_', $name);
     $method = strtoupper(array_shift($parts));
     $parts  = implode('_', $parts);
-    $endpoint   = '/' . preg_replace('/[A-Z]|[0-9]+/e', "'/'.strtolower('\\0')", $parts) . '.json';
+    $endpoint   = '/' . preg_replace_callback('/[A-Z]|[0-9]+/', function($m){ return '/' . strtolower($m[0]);}, $parts) . '.json';
     /* HACK: this is required for list support that starts with a user id */
     $endpoint = str_replace('//','/',$endpoint);
     $args = !empty($params) ? array_shift($params) : null;
