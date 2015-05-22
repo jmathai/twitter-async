@@ -31,7 +31,7 @@ class EpiCurl
       'url'   => CURLINFO_EFFECTIVE_URL
       );
   }
-
+  
   public function addEasyCurl($ch)
   {
     $key = $this->getKey($ch);
@@ -41,6 +41,16 @@ class EpiCurl
     $this->storeResponse($done, false);
     $this->startTimer($key);
     return new EpiCurlManager($key);
+  }
+  
+  // simplifies example and allows for additional curl options to be passed in via array
+  public function addURL($url,$options=array()) {
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    foreach($options as $option=>$value) {
+      curl_setopt($ch, $option, $value);
+    }
+    return $this->addCurl($ch);
   }
 
   public function addCurl($ch)
@@ -71,7 +81,7 @@ class EpiCurl
   {
     if($key != null)
     {
-      if(isset($this->responses[$key]))
+      if(isset($this->responses[$key]['data']))
       {
         return $this->responses[$key];
       }
@@ -82,7 +92,7 @@ class EpiCurl
         usleep(intval($outerSleepInt));
         $outerSleepInt = intval(max(1, ($outerSleepInt*$this->sleepIncrement)));
         $ms=curl_multi_select($this->mc, 0);
-        if($ms > 0)
+        if($ms >= CURLM_CALL_MULTI_PERFORM)
         {
           do{
             $this->execStatus = curl_multi_exec($this->mc, $this->running);
@@ -102,7 +112,12 @@ class EpiCurl
     }
     return false;
   }
-
+  
+  public function cleanupResponses()
+  {
+    $this->responses = array();
+  }
+  
   public static function getSequence()
   {
     return new EpiSequence(self::$timers);
@@ -138,7 +153,7 @@ class EpiCurl
       $this->storeResponse($done);
     }
   }
-
+  
   private function storeResponse($done, $isAsynchronous = true)
   {
     $key = $this->getKey($done['handle']);
@@ -156,7 +171,7 @@ class EpiCurl
       curl_multi_remove_handle($this->mc, $done['handle']);
     curl_close($done['handle']);
   }
-
+  
   private function startTimer($key)
   {
     self::$timers[$key]['start'] = microtime(true);
