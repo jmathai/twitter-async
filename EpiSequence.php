@@ -1,4 +1,7 @@
 <?php
+
+namespace jmathai\twitter_async;
+
 class EpiSequence
 {
   private $timers, $min, $max, $width = 100;

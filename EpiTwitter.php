@@ -9,6 +9,15 @@
  * 
  *  @author Jaisen Mathai <jaisen@jmathai.com>
  */
+
+namespace jmathai\twitter_async;
+
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use Exception;
+use IteratorAggregate;
+
 class EpiTwitter extends EpiOAuth
 {
   const EPITWITTER_SIGNATURE_METHOD = 'HMAC-SHA1';

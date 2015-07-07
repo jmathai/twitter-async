@@ -1,14 +1,19 @@
 <?php
+
+namespace jmathai\twitter_async;
+
+use Exception;
+
 class EpiCurl
 {
   const timeout = 3;
   static $inst = null;
   static $singleton = 0;
   private $mc;
-  private $msgs;
+  //private $msgs;
   private $running;
   private $execStatus;
-  private $selectStatus;
+  //private $selectStatus;
   private $sleepIncrement = 1.1;
   private $requests = array();
   private $responses = array();
@@ -56,7 +61,7 @@ class EpiCurl
     if($code === CURLM_OK || $code === CURLM_CALL_MULTI_PERFORM)
     {
       do {
-          $code = $this->execStatus = curl_multi_exec($this->mc, $this->running);
+          //$code = $this->execStatus = curl_multi_exec($this->mc, $this->running);
       } while ($this->execStatus === CURLM_CALL_MULTI_PERFORM);
 
       return new EpiCurlManager($key);
@@ -96,7 +101,7 @@ class EpiCurl
         {
           return $this->responses[$key];
         }
-        $runningCurrent = $this->running;
+        //$runningCurrent = $this->running;
       }
       return null;
     }
@@ -118,7 +123,7 @@ class EpiCurl
     return (string)$ch;
   }
 
-  private function headerCallback($ch, $header)
+  /*private function headerCallback($ch, $header)
   {
     $_header = trim($header);
     $colonPos= strpos($_header, ':');
@@ -130,6 +135,7 @@ class EpiCurl
     }
     return strlen($header);
   }
+    */
 
   private function storeResponses()
   {

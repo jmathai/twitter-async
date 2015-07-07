@@ -1,4 +1,9 @@
 <?php
+
+namespace jmathai\twitter_async;
+
+use Exception;
+
 class EpiOAuth
 {
   public $version = '1.0';
