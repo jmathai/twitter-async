@@ -1,12 +1,21 @@
 {
-	"name": "jmathai/twitter-async", 
-	"description": "Twitter-async is a high performance wrapper for Twitter's OAuth API which provides parallel/asynchronous calls.", 
-	"homepage": "http://www.jaisenmathai.com/articles/twitter-async-documentation.html",
-	"author": "Jaisen Mathai",
-	"license": "BSD",
-    "autoload": {
-      "psr-4": {
-        "jmathai\\twitter_async\\": ""
-      }
+  "name": "jmathai/twitter-async",
+  "description": "Twitter-async is a high performance wrapper for Twitter's OAuth API which provides parallel/asynchronous calls.",
+  "homepage": "http://www.jaisenmathai.com/articles/twitter-async-documentation.html",
+  "author": "Jaisen Mathai",
+  "license": "BSD",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/jmathai/php-multi-curl"
     }
+  ],
+  "require": {
+    "jmathai/php-multi-curl": ">= 0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "jmathai\\twitter_async\\": ""
+    }
+  }
 }

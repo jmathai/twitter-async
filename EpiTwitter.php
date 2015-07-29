@@ -17,6 +17,7 @@ use ArrayIterator;
 use Countable;
 use Exception;
 use IteratorAggregate;
+use jmathai\php_multi_curl\EpiCurl;
 
 class EpiTwitter extends EpiOAuth
 {

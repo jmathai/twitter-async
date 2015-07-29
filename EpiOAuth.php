@@ -2,6 +2,8 @@
 
 namespace jmathai\twitter_async;
 
+use jmathai\php_multi_curl\EpiCurl;
+
 use Exception;
 
 class EpiOAuth
