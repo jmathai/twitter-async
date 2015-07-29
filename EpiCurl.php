@@ -10,10 +10,10 @@ class EpiCurl
   static $inst = null;
   static $singleton = 0;
   private $mc;
-  //private $msgs;
+  private $msgs;
   private $running;
   private $execStatus;
-  //private $selectStatus;
+  private $selectStatus;
   private $sleepIncrement = 1.1;
   private $requests = array();
   private $responses = array();
@@ -61,7 +61,7 @@ class EpiCurl
     if($code === CURLM_OK || $code === CURLM_CALL_MULTI_PERFORM)
     {
       do {
-          //$code = $this->execStatus = curl_multi_exec($this->mc, $this->running);
+          $code = $this->execStatus = curl_multi_exec($this->mc, $this->running);
       } while ($this->execStatus === CURLM_CALL_MULTI_PERFORM);
 
       return new EpiCurlManager($key);
