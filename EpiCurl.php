@@ -101,7 +101,7 @@ class EpiCurl
         {
           return $this->responses[$key];
         }
-        //$runningCurrent = $this->running;
+        $runningCurrent = $this->running;
       }
       return null;
     }
@@ -123,7 +123,7 @@ class EpiCurl
     return (string)$ch;
   }
 
-  /*private function headerCallback($ch, $header)
+  private function headerCallback($ch, $header)
   {
     $_header = trim($header);
     $colonPos= strpos($_header, ':');
@@ -135,7 +135,6 @@ class EpiCurl
     }
     return strlen($header);
   }
-    */
 
   private function storeResponses()
   {
