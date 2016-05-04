@@ -10,12 +10,13 @@
             "role": "Developer"
         }
     ],
-    "license": "BSD",
+    "license": "BSD-3-Clause",
     "require": {
         "ext-curl": "*"
     },
     "autoload": {
-        "classmap": [""]
+        "classmap": [""],
+        "exclude-from-classmap": ["**/tests/**"]
     },
     "minimum-stability": "dev"
 }
