@@ -20,6 +20,7 @@ class EpiOAuth
   protected $userAgent = 'EpiOAuth (http://github.com/jmathai/twitter-async/tree/)';
   protected $connectionTimeout = 5;
   protected $requestTimeout = 30;
+  protected $serverAddr;
 
   public function addHeader($header)
   {
@@ -130,6 +131,11 @@ class EpiOAuth
     $this->callback = $callback;
   }
 
+  public function setServerAddr($serverAddr = false)
+  {
+      $this->serverAddr = $serverAddr;
+  }
+
   public function useSSL($use = false)
   {
     $this->useSSL = (bool)$use;
@@ -168,8 +174,8 @@ class EpiOAuth
     curl_setopt($ch, CURLOPT_ENCODING, '');
     if($this->followLocation)
       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    if(isset($_SERVER ['SERVER_ADDR']) && !empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] != '127.0.0.1')
-      curl_setopt($ch, CURLOPT_INTERFACE, $_SERVER ['SERVER_ADDR']);
+    if($this->serverAddr !== false)
+      curl_setopt($ch, CURLOPT_INTERFACE, $this->serverAddr);
 
     // if the certificate exists then use it, else bypass ssl checks
     if(file_exists($cert = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'ca-bundle.crt'))
@@ -384,6 +390,8 @@ class EpiOAuth
     $this->consumerKey = $consumerKey;
     $this->consumerSecret = $consumerSecret;
     $this->signatureMethod = $signatureMethod;
+    $this->serverAddr = (!empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] != '127.0.0.1')
+        ? $_SERVER['SERVER_ADDR'] : false;
     $this->curl = EpiCurl::getInstance();
   }
 }
