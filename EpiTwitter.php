@@ -157,7 +157,7 @@ class EpiTwitter extends EpiOAuth
   }
 }
 
-class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
+class EpiTwitterJson implements \ArrayAccess, \Countable, \IteratorAggregate
 {
   private $debug;
   private $__resp;
@@ -250,7 +250,7 @@ class EpiTwitterJson implements ArrayAccess, Countable, IteratorAggregate
   }
 }
 
-class EpiTwitterException extends Exception 
+class EpiTwitterException extends \Exception 
 {
   public static function raise($response, $debug)
   {
