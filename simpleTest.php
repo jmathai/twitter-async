@@ -1,7 +1,12 @@
 <?php
-include 'EpiCurl.php';
-include 'EpiOAuth.php';
-include 'EpiTwitter.php';
+
+include './EpiOAuth.php';
+include './EpiTwitter.php';
+include './vendor/jmathai/php-multi-curl/EpiCurl.php';
+use jmathai\php_multi_curl\EpiCurl;
+use jmathai\twitter_async\EpiOAuth;
+use jmathai\twitter_async\EpiTwitter;
+
 $consumer_key = 'jdv3dsDhsYuJRlZFSuI2fg';
 $consumer_secret = 'NNXamBsBFG8PnEmacYs0uCtbtsz346OJSod7Dl94';
 $token = '25451974-uakRmTZxrSFQbkDjZnTAsxDO5o9kacz2LT6kqEHA';

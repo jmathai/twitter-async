@@ -12,3 +12,6 @@ Thumbs.db
 __MACOSX
 
 # Project Specific
+/vendor/
+composer.lock
+.idea/
