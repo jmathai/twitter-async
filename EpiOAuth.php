@@ -430,7 +430,7 @@ class EpiOAuthException extends Exception
 {
   public static function raise($response, $debug)
   {
-    $message = $response->responseText;
+    $message = ($response->responseText != NULL) ? $response->responseText : $response->data;
 
     switch($response->code)
     {
